@@ -40,8 +40,8 @@ const router = express.Router();
  *               type: object
  *               properties:
  *                 message:
- *                   type: string
- *                   example: "Mot de passe réinitialisé avec succès."
+ *                 type: string
+ *                 example: "Mot de passe réinitialisé avec succès."
  *       400:
  *         description: Données manquantes ou token invalide
  *         content:
@@ -54,18 +54,24 @@ router.post("/", async (req, res) => {
   const { email, token, newPassword } = req.body;
   if (!email || !token || !newPassword) {
     // Vérification des champs obligatoires
-    return res.status(400).json({ error: "Email, token et nouveau mot de passe requis." });
+    return res
+      .status(400)
+      .json({ error: "Email, token et nouveau mot de passe requis." });
   }
+
   // Recherche de l'utilisateur correspondant à l'email et au token
   const user = await prisma.user.findUnique({ where: { email } });
-  if (!user ||
-      !user.resetPasswordToken ||
-      user.resetPasswordToken !== token ||
-      !user.resetPasswordTokenExpiry ||
-      user.resetPasswordTokenExpiry < new Date()
+  if (
+    !user ||
+    !user.resetPasswordToken ||
+    user.resetPasswordToken !== token ||
+    !user.resetPasswordTokenExpiry ||
+    user.resetPasswordTokenExpiry < new Date()
   ) {
     // Si l'utilisateur n'existe pas, ou le token est invalide/expiré
-    return res.status(400).json({ error: "Lien de réinitialisation invalide ou expiré." });
+    return res
+      .status(400)
+      .json({ error: "Lien de réinitialisation invalide ou expiré." });
   }
   // Hachage du nouveau mot de passe
   const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -78,9 +84,10 @@ router.post("/", async (req, res) => {
       resetPasswordTokenExpiry: null,
     },
   });
+
   // Réponse de succès
   return res.json({ message: "Mot de passe réinitialisé avec succès." });
 });
 
 // Export du routeur pour l'utiliser dans l'application principale
-module.exports = router; 
+module.exports = router;
