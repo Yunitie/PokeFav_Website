@@ -1,6 +1,8 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpecs = require("./utils/swagger/swagger");
 
 const app = express();
 const prisma = new PrismaClient();
@@ -8,10 +10,23 @@ const prisma = new PrismaClient();
 app.use(cors());
 app.use(express.json());
 
+// Configuration Swagger
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpecs, {
+    customCss: ".swagger-ui .topbar { display: none }",
+    customSiteTitle: "PokeFav API Documentation",
+  })
+);
+
 // Importation des routes
 const authLoginRouter = require("./api/auth/login/route");
 const authRegisterRouter = require("./api/auth/register/route");
 const authRefreshRouter = require("./api/auth/refresh/route");
+const authLogoutRouter = require("./api/auth/logout/route");
+const authForgotPasswordRouter = require("./api/auth/forgot-password/route");
+const authResetPasswordRouter = require("./api/auth/reset-password/route");
 const usersRouter = require("./api/users/route");
 const profileRouter = require("./api/profile/route");
 
@@ -19,6 +34,9 @@ const profileRouter = require("./api/profile/route");
 app.use("/api/auth/login", authLoginRouter);
 app.use("/api/auth/register", authRegisterRouter);
 app.use("/api/auth/refresh", authRefreshRouter);
+app.use("/api/auth/logout", authLogoutRouter);
+app.use("/api/auth/forgot-password", authForgotPasswordRouter);
+app.use("/api/auth/reset-password", authResetPasswordRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/profile", profileRouter);
 

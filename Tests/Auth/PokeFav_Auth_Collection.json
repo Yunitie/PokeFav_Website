@@ -1,0 +1,209 @@
+{
+  "info": {
+    "name": "PokeFav Auth API",
+    "description": "Collection pour tester tous les endpoints d'authentification de l'API PokeFav",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Inscription",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"trashyuni@gmail.com\",\n  \"password\": \"motdepasse123\",\n  \"displayName\": \"Utilisateur Test\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "register"]
+        },
+        "description": "Créer un nouveau compte utilisateur"
+      },
+      "response": []
+    },
+    {
+      "name": "2. Connexion",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Sauvegarder le token d'accès",
+              "if (pm.response.code === 200) {",
+              "    const response = pm.response.json();",
+              "    pm.collectionVariables.set('accessToken', response.accessToken);",
+              "    console.log('Access Token sauvegardé:', response.accessToken);",
+              "}",
+              "",
+              "// Sauvegarder le refresh token depuis les cookies",
+              "const cookies = pm.response.headers.get('Set-Cookie');",
+              "if (cookies) {",
+              "    const refreshTokenMatch = cookies.match(/refreshToken=([^;]+)/);",
+              "    if (refreshTokenMatch) {",
+              "        pm.collectionVariables.set('refreshToken', refreshTokenMatch[1]);",
+              "        console.log('Refresh Token sauvegardé:', refreshTokenMatch[1]);",
+              "    }",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"trashyuni@gmail.com\",\n  \"password\": \"motdepasse123\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "login"]
+        },
+        "description": "Se connecter avec email et mot de passe"
+      },
+      "response": []
+    },
+    {
+      "name": "3. Rafraîchir Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/refresh",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "refresh"]
+        },
+        "description": "Obtenir un nouveau token d'accès avec le refresh token"
+      },
+      "response": []
+    },
+    {
+      "name": "4. Mot de passe oublié",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"trashyuni@gmail.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/forgot-password",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "forgot-password"]
+        },
+        "description": "Demander la réinitialisation du mot de passe"
+      },
+      "response": []
+    },
+    {
+      "name": "5. Réinitialiser Mot de passe",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"trashyuni@gmail.com\",\n  \"token\": \"TOKEN_FROM_EMAIL\",\n  \"newPassword\": \"nouveaumotdepasse123\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/reset-password",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "reset-password"]
+        },
+        "description": "Réinitialiser le mot de passe avec le token reçu par email"
+      },
+      "response": []
+    },
+    {
+      "name": "6. Déconnexion",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/logout",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "logout"]
+        },
+        "description": "Se déconnecter en supprimant le cookie refresh token"
+      },
+      "response": []
+    },
+    {
+      "name": "7. Tester Profil (Authentifié)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/profile",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "profile"]
+        },
+        "description": "Tester un endpoint protégé avec le token d'accès"
+      },
+      "response": []
+    }
+  ]
+} 

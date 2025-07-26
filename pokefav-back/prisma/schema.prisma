@@ -14,12 +14,14 @@ datasource db {
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  email       String   @unique
-  password    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  displayName String?
-  avatar      String?
-  isVerified  Boolean  @default(false)
+  id                       Int       @id @default(autoincrement())
+  email                    String    @unique
+  password                 String
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+  displayName              String?
+  avatar                   String?
+  isVerified               Boolean   @default(false)
+  resetPasswordToken       String? // Token de réinitialisation du mot de passe
+  resetPasswordTokenExpiry DateTime? // Expiration du token
 }

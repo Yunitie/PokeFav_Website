@@ -5,15 +5,19 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
+    "test-swagger": "node utils/swagger/test-swagger.js",
     "prisma:generate": "prisma generate --schema=prisma/schema.prisma"
   },
   "dependencies": {
+    "@prisma/client": "^6.12.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^7.0.5",
     "prisma": "^6.12.0",
-    "@prisma/client": "^6.12.0"
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
