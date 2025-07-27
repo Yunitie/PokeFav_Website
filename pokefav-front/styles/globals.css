@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+@layer base {
+    html {
+        font-family: inter, system-ui, sans-serif;
+    }
+}
+
+@theme {
+
+  /* FONTSIZE */
+
+  --text-8xl: 120px;
+  --text-8xl--line-height: 120px;
+  --text-8xl--letter-spacing: -6px;
+  --text-8xl--font-weight: 500;
+  
+  --text-7xl: 72px;
+  --text-7xl--line-height: 80px;
+  --text-7xl--letter-spacing: -4.5px;
+  --text-7xl--font-weight: 600;
+
+  --text-6xl: 55px;
+  --text-6xl--line-height: 60px;
+  --text-6xl--letter-spacing: -2.5px;
+  --text-6xl--font-weight: 500;
+
+  --text-5xl: 48px;
+  --text-5xl--line-height: 54px;
+  --text-5xl--letter-spacing: -1.6px;
+  --text-5xl--font-weight: 500;
+
+  --text-4xl: 36px;
+  --text-4xl--line-height: 44px;
+  --text-4xl--letter-spacing: -1.2px;
+  --text-4xl--font-weight: 500;
+
+  --text-3xl: 28px;
+  --text-3xl--line-height: 34px;
+  --text-3xl--letter-spacing: -0.8px;
+  --text-3xl--font-weight: 500;
+
+  --text-2xl: 24px;
+  --text-2xl--line-height: 30px;
+  --text-2xl--letter-spacing: -1px;
+  --text-2xl--font-weight: 400;
+
+  --text-xl: 24px;
+  --text-xl--line-height: 30px;
+  --text-xl--letter-spacing: -1px;
+  --text-xl--font-weight: 400;
+
+  --text-lg: 21px;
+  --text-lg--line-height: 30px;
+  --text-lg--letter-spacing: -0.8px;
+  --text-lg--font-weight: 400;
+
+  --text-base: 17px;
+  --text-base--line-height: 25px;
+  --text-base--letter-spacing: -0.7px;
+  --text-base--font-weight: 400;
+
+  --text-sm: 15px;
+  --text-sm--line-height: 23px;
+  --text-sm--letter-spacing: -0.6px;
+  --text-sm--font-weight: 400;
+
+  --text-caption1: 20px;
+  --text-caption1--line-height: 24px;
+  --text-caption1--letter-spacing: -0.6px;
+  --text-caption1--font-weight: 400;
+
+  --text-caption2: 18px;
+  --text-caption2--line-height: 20px;
+  --text-caption2--letter-spacing: -0.3px;
+  --text-caption2--font-weight: 400;
+
+  --text-caption3: 16px;
+  --text-caption3--line-height: 18px;
+  --text-caption3--letter-spacing: -0.5px;
+  --text-caption3--font-weight: 400;
+
+  --text-caption4: 13px;
+  --text-caption4--line-height: 15px;
+  --text-caption4--letter-spacing: -0.2px;
+  --text-caption4--font-weight: 400;
+
+  /* COLOR */
+
+  --color-white: #ffffff;
+
+  --color-primary: #5F62E2;
+  --color-primary-200: #efeffc;
+  --color-primary-300: #cfd0f6;
+  --color-primary-400: #7f81e8;
+  --color-primary-500: #5F62E2;
+  --color-primary-600: #5658CB;
+
+  --color-secondary: #2AB691;
+  --color-secondary-200: #eaf8f4;
+  --color-secondary-300: #bfe9de;
+  --color-secondary-400: #56c4a7;
+  --color-secondary-500: #2AB691;
+  --color-secondary-600: #26a482;
+
+  --color-gray: #1D1D1D;
+  --color-gray-300: #fafafa;
+  --color-gray-400: #f2f2f2;
+  --color-gray-500: #e5e5e5;
+  --color-gray-600: #b2b2b2;
+  --color-gray-700: #808080;
+  --color-gray-800: #333333;
+  --color-gray-900: #1D1D1D;
+
+  --color-alert-danger: #FF4E4E;
+  --color-alert-success: #90DA1A;
+  --color-alert-warning: #FEB72F;
+
+  --radius: 10px; 
+
+}
+
+@layer components {
+    a:hover {
+        color: #5F62E2;
+    }
+
+    .animate, a, a:hover {
+        transition: all 0.2s ease-in-out;
+        cursor: pointer;
+    }
+}
