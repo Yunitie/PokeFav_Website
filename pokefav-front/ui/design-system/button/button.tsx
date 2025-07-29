@@ -32,6 +32,7 @@ interface Props {
   action?: () => void; //donner une fonction
   type?: "button" | "submit";
   fullWith?: boolean;
+  className?: string;
 }
 
 const Button = ({
@@ -48,6 +49,7 @@ const Button = ({
   type = "button",
   fullWith = false,
   action = () => {},
+  className,
 }: Props) => {
   let variantStyles: string = "",
     sizeStyles: string = "",
@@ -167,7 +169,8 @@ const Button = ({
           icoSize,
           isLoading && "cursor-not-allowed",
           fullWith && "w-full",
-          "relative animate" //la position absolute correspond au bouton
+          "relative animate",
+          className
         )}
         onClick={handleClick}
         disabled={disabled || isLoading ? true : false}

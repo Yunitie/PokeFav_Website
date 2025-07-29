@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "../styles/globals.css";
+import { AuthUserProvider } from "../context/AuthUserContext";
 
 export const metadata: Metadata = {
-  title: "PokeFav - Vos Pokémon favoris",
-  description: "Créez et partagez votre classement de Pokémon favoris",
+  title: "PokeFav - Your favorite Pokemon",
+  description: "Create and share your favorite Pokemon ranking",
 };
 
 export default function RootLayout({
@@ -12,8 +13,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr">
-      <body className="antialiased">{children}</body>
+    <html lang="en">
+      <body className="antialiased">
+        <AuthUserProvider>{children}</AuthUserProvider>
+      </body>
     </html>
   );
 }

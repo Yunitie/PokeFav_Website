@@ -1,22 +1,21 @@
 @import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 
 @layer base {
-    html {
-        font-family: inter, system-ui, sans-serif;
-    }
+  html {
+    font-family: inter, system-ui, sans-serif;
+  }
 }
 
 @theme {
-
   /* FONTSIZE */
 
   --text-8xl: 120px;
   --text-8xl--line-height: 120px;
   --text-8xl--letter-spacing: -6px;
   --text-8xl--font-weight: 500;
-  
+
   --text-7xl: 72px;
   --text-7xl--line-height: 80px;
   --text-7xl--letter-spacing: -4.5px;
@@ -91,44 +90,45 @@
 
   --color-white: #ffffff;
 
-  --color-primary: #5F62E2;
+  --color-primary: #5f62e2;
   --color-primary-200: #efeffc;
   --color-primary-300: #cfd0f6;
   --color-primary-400: #7f81e8;
-  --color-primary-500: #5F62E2;
-  --color-primary-600: #5658CB;
+  --color-primary-500: #5f62e2;
+  --color-primary-600: #5658cb;
 
-  --color-secondary: #2AB691;
+  --color-secondary: #2ab691;
   --color-secondary-200: #eaf8f4;
   --color-secondary-300: #bfe9de;
   --color-secondary-400: #56c4a7;
-  --color-secondary-500: #2AB691;
+  --color-secondary-500: #2ab691;
   --color-secondary-600: #26a482;
 
-  --color-gray: #1D1D1D;
-  --color-gray-300: #fafafa;
-  --color-gray-400: #f2f2f2;
-  --color-gray-500: #e5e5e5;
-  --color-gray-600: #b2b2b2;
-  --color-gray-700: #808080;
+  --color-gray: #1d1d1d;
+  --color-gray-300: #e0e0e0;
+  --color-gray-400: #cfcfcf;
+  --color-gray-500: #aaaaaa;
+  --color-gray-600: #757575;
+  --color-gray-700: #535353;
   --color-gray-800: #333333;
-  --color-gray-900: #1D1D1D;
+  --color-gray-900: #1d1d1d;
 
-  --color-alert-danger: #FF4E4E;
-  --color-alert-success: #90DA1A;
-  --color-alert-warning: #FEB72F;
+  --color-alert-danger: #ff4e4e;
+  --color-alert-success: #90da1a;
+  --color-alert-warning: #feb72f;
 
-  --radius: 10px; 
-
+  --radius: 10px;
 }
 
 @layer components {
-    a:hover {
-        color: #5F62E2;
-    }
+  a:hover {
+    color: #5f62e2;
+  }
 
-    .animate, a, a:hover {
-        transition: all 0.2s ease-in-out;
-        cursor: pointer;
-    }
+  .animate,
+  a,
+  a:hover {
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+  }
 }
