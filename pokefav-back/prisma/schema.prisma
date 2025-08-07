@@ -14,14 +14,50 @@ datasource db {
 }
 
 model User {
-  id                       Int       @id @default(autoincrement())
-  email                    String    @unique
+  id                       Int           @id @default(autoincrement())
+  email                    String        @unique
   password                 String
-  createdAt                DateTime  @default(now())
-  updatedAt                DateTime  @updatedAt
+  createdAt                DateTime      @default(now())
+  updatedAt                DateTime      @updatedAt
   displayName              String?
   avatar                   String?
-  isVerified               Boolean   @default(false)
+  isVerified               Boolean       @default(false)
   resetPasswordToken       String? // Token de réinitialisation du mot de passe
   resetPasswordTokenExpiry DateTime? // Expiration du token
+  pokemonRank              PokemonRank[]
+}
+
+model PokemonRank {
+  id        Int     @id @default(autoincrement())
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  pokemon   Pokemon @relation(fields: [pokemonId], references: [id], onDelete: Cascade)
+  pokemonId Int
+  score     Int     @default(0)
+}
+
+model Pokemon {
+  id          Int           @id @default(autoincrement())
+  pokedexId   Int
+  name        String
+  artworkUrl  String
+  type1       String
+  type2       String?
+  generation  String
+  height      Int
+  weight      Int
+  stats       PokemonStats  @relation(fields: [statsId], references: [id], onDelete: Cascade)
+  statsId     Int           @unique
+  PokemonRank PokemonRank[]
+}
+
+model PokemonStats {
+  id             Int      @id @default(autoincrement())
+  hp             Int
+  attack         Int
+  defense        Int
+  specialAttack  Int
+  specialDefense Int
+  speed          Int
+  pokemon        Pokemon?
 }
