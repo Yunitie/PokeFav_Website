@@ -5,8 +5,6 @@ import { useState } from "react";
 import React from "react";
 // Import des hooks Next.js pour la navigation et les paramètres d'URL
 import { useRouter, useSearchParams } from "next/navigation";
-// Import du contexte d'authentification personnalisé
-import { useAuth } from "@/context/AuthUserContext";
 // Import des composants UI personnalisés
 import Container from "@/ui/components/container/container";
 import { Typography } from "@/ui/design-system/typography/typography";
@@ -15,24 +13,20 @@ import Logo from "@/ui/design-system/logo/logo";
 import Spinner from "@/ui/design-system/spinner/spinner";
 
 /**
- * Page de connexion - Permet aux utilisateurs de se connecter à leur compte PokeFav
- * Utilise le contexte d'authentification pour gérer la connexion
+ * Page de mot de passe oublié - Permet aux utilisateurs de demander une réinitialisation
+ * de leur mot de passe via un email de récupération
  */
-export default function LoginPage() {
+export default function ForgotPasswordPage() {
   // États locaux pour gérer le formulaire et l'interface utilisateur
   const [email, setEmail] = useState(""); // Email saisi par l'utilisateur
-  const [password, setPassword] = useState(""); // Mot de passe saisi
   const [error, setError] = useState(""); // Message d'erreur à afficher
   const [success, setSuccess] = useState(""); // Message de succès à afficher
-  const [isLoading, setIsLoading] = useState(false); // État de chargement pendant la connexion
+  const [isLoading, setIsLoading] = useState(false); // État de chargement pendant l'envoi
 
-  // Récupération des fonctions et objets du contexte d'authentification
-  const { login } = useAuth();
   const router = useRouter(); // Hook pour la navigation
   const searchParams = useSearchParams(); // Hook pour accéder aux paramètres d'URL
 
   // Effet pour vérifier les messages passés via les paramètres d'URL
-  // Utile pour afficher des messages de succès après redirection (ex: après inscription)
   React.useEffect(() => {
     const message = searchParams.get("message");
     if (message) {
@@ -41,23 +35,40 @@ export default function LoginPage() {
   }, [searchParams]);
 
   /**
-   * Gestionnaire de soumission du formulaire de connexion
+   * Gestionnaire de soumission du formulaire de récupération
    * @param e - Événement de soumission du formulaire
    */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); // Empêche le rechargement de la page
     setError(""); // Réinitialise les messages d'erreur précédents
+    setSuccess(""); // Réinitialise les messages de succès précédents
     setIsLoading(true); // Active l'état de chargement
 
     try {
-      // Tentative de connexion via le contexte d'authentification
-      await login(email, password);
-      // Redirection vers la page d'accueil après connexion réussie
-      router.push("/");
+      // Appel API pour envoyer l'email de récupération
+      const response = await fetch("http://localhost:3001/api/auth/forgot-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Succès - l'API a traité la demande
+        setSuccess(data.message || "Si un compte existe avec cet email, vous recevrez un lien de récupération dans quelques minutes.");
+        // Réinitialisation du formulaire
+        setEmail("");
+      } else {
+        // Erreur retournée par l'API
+        setError(data.error || "Une erreur s'est produite. Veuillez réessayer.");
+      }
     } catch (error) {
-      // Gestion des erreurs de connexion
-      setError("Incorrect email or password");
-      console.log(error);
+      // Gestion des erreurs de réseau ou autres erreurs
+      console.error("Erreur lors de l'appel API:", error);
+      setError("Impossible de contacter le serveur. Vérifiez votre connexion et réessayez.");
     } finally {
       // Désactivation de l'état de chargement dans tous les cas
       setIsLoading(false);
@@ -80,15 +91,15 @@ export default function LoginPage() {
             </div>
             {/* Titre principal de la page */}
             <Typography variant="h2" component="h1" className="mb-2">
-              Login
+              Mot de passe oublié
             </Typography>
             {/* Sous-titre descriptif */}
             <Typography variant="body-sm" theme="gray">
-              Sign in to your PokeFav account
+              Entrez votre email pour recevoir un lien de récupération
             </Typography>
           </div>
 
-          {/* Formulaire de connexion */}
+          {/* Formulaire de récupération */}
           <form onSubmit={handleSubmit} className="space-y-6">
             
             {/* Champ email */}
@@ -97,7 +108,7 @@ export default function LoginPage() {
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Email address
+                Adresse email
               </label>
               <input
                 id="email"
@@ -108,28 +119,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                placeholder="your@email.com"
-              />
-            </div>
-
-            {/* Champ mot de passe */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                placeholder="Your password"
+                placeholder="votre@email.com"
               />
             </div>
 
@@ -151,41 +141,44 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Bouton de connexion avec gestion de l'état de chargement */}
+            {/* Bouton d'envoi avec gestion de l'état de chargement */}
             <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Spinner size="small" />
-                  Logging in...
+                  Envoi en cours...
                 </>
               ) : (
-                "Sign in"
+                "Envoyer le lien de récupération"
               )}
             </Button>
           </form>
 
           {/* Section des liens additionnels */}
           <div className="mt-6 text-center space-y-4">
+            {/* Lien de retour vers la connexion */}
+            <div>
+              <Typography variant="body-base" theme="gray">
+                Vous vous souvenez de votre mot de passe ?{" "}
+                <a
+                  href="/login"
+                  className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                >
+                  Se connecter
+                </a>
+              </Typography>
+            </div>
             {/* Lien vers la page d'inscription */}
             <div>
               <Typography variant="body-base" theme="gray">
-                Don&apos;t have an account yet?{" "}
+                Pas encore de compte ?{" "}
                 <a
                   href="/login/register"
                   className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
                 >
-                  Create an account
+                  Créer un compte
                 </a>
               </Typography>
-            </div>
-            {/* Lien vers la page de récupération de mot de passe */}
-            <div>
-              <a
-                href="/login/forgot-password"
-                className="text-sm text-gray-600 hover:text-gray-800 transition-colors"
-              >
-                Forgot password?
-              </a>
             </div>
           </div>
         </div>
