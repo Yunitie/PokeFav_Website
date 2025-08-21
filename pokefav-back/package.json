@@ -6,7 +6,8 @@
     "dev": "nodemon index.js",
     "start": "node index.js",
     "test-swagger": "node utils/swagger/test-swagger.js",
-    "prisma:generate": "prisma generate --schema=prisma/schema.prisma"
+    "prisma:generate": "prisma generate --schema=prisma/schema.prisma",
+    "import:tyradex": "node scripts/import-tyradex.js"
   },
   "dependencies": {
     "@prisma/client": "^6.13.0",

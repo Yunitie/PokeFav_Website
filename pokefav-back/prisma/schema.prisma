@@ -44,8 +44,8 @@ model Pokemon {
   type1       String
   type2       String?
   generation  String
-  height      Int
-  weight      Int
+  height      Float
+  weight      Float
   stats       PokemonStats  @relation(fields: [statsId], references: [id], onDelete: Cascade)
   statsId     Int           @unique
   PokemonRank PokemonRank[]
