@@ -38,7 +38,7 @@ const Navigation = ({}: Props) => {
 
   const navigationLinks = (
     <>
-      <ActiveLink href="/pokemon">Pokemon</ActiveLink>
+      <ActiveLink href="/pokemon-choice">Pokemon</ActiveLink>
       <ActiveLink href="/my-ranking">My Ranking</ActiveLink>
       <ActiveLink href="/profile">Profile</ActiveLink>
     </>
