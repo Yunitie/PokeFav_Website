@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const cors = require("cors");
@@ -40,6 +41,7 @@ const usersRouter = require("./api/users/route");
 const profileRouter = require("./api/profile/route");
 const pokemonByIdRouter = require("./api/pokemon/[id]/route");
 const pokemonRandomRouter = require("./api/pokemon/random/route");
+const pokemonRankRouter = require("./api/pokemon/rank/route");
 
 // Montage des routes
 app.use("/api/auth/login", authLoginRouter);
@@ -52,6 +54,7 @@ app.use("/api/users", usersRouter);
 app.use("/api/profile", profileRouter);
 app.use("/api/pokemon/random", pokemonRandomRouter);
 app.use("/api/pokemon", pokemonByIdRouter);
+app.use("/api/pokemon/rank", pokemonRankRouter);
 
 // Middleware d'erreur basique
 app.use((err, req, res, next) => {

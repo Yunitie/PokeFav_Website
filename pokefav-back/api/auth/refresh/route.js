@@ -51,7 +51,7 @@ const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
  *               $ref: '#/components/schemas/Error'
  */
 router.post("/", async (req, res) => {
-  const { refreshToken } = req.body;
+  const refreshToken = req.cookies?.refreshToken;
   if (!refreshToken) {
     return res.status(400).json({ error: "Refresh token manquant." });
   }

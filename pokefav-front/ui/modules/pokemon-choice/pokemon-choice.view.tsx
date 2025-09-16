@@ -11,6 +11,7 @@ interface PokemonChoiceViewProps {
   loading: boolean;
   error: string | null;
   onNewPokemons: () => void;
+  onPokemonClick?: (pokemon: Pokemon) => void;
 }
 
 export default function PokemonChoiceView({
@@ -20,6 +21,7 @@ export default function PokemonChoiceView({
   loading,
   error,
   onNewPokemons,
+  onPokemonClick,
 }: PokemonChoiceViewProps) {
   // Affiche le spinner de chargement
   if (loading) {
@@ -56,6 +58,10 @@ export default function PokemonChoiceView({
     );
   }
 
+  const onClickInternal = (pokemon: Pokemon) => {
+    onPokemonClick?.(pokemon);
+  };
+
   // Affiche le Pokémon aléatoire
   return (
     <Layout>
@@ -82,7 +88,11 @@ export default function PokemonChoiceView({
 
           <div className="flex flex-wrap justify-center items-start gap-4">
             {pokemons.map((pkmn, idx) => (
-              <DisplayPokemon key={pkmn.id ?? idx} pokemon={pkmn} />
+              <DisplayPokemon
+                key={pkmn.id ?? idx}
+                pokemon={pkmn}
+                onClick={onClickInternal}
+              />
             ))}
           </div>
 

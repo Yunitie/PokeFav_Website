@@ -19,6 +19,7 @@ interface AuthUser {
 interface AuthContextType {
   authUser: AuthUser | null;
   loading: boolean;
+  accessToken: string | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -28,6 +29,7 @@ interface AuthContextType {
 const defaultAuthContext: AuthContextType = {
   authUser: null,
   loading: true,
+  accessToken: null,
   login: async () => {
     throw new Error("Auth context not initialized");
   },
@@ -52,6 +54,7 @@ export const useAuth = () => {
 export const AuthUserProvider = ({ children }: { children: ReactNode }) => {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
 
   // Appel au backend pour récupérer l'utilisateur courant
   const refreshUser = async () => {
@@ -94,7 +97,10 @@ export const AuthUserProvider = ({ children }: { children: ReactNode }) => {
           .catch(() => ({ error: "Connection error" }));
         throw new Error(errorData.error || "Connection error");
       }
-
+      const data = await res.json();
+      if (data?.accessToken) {
+        setAccessToken(data.accessToken);
+      }
       await refreshUser();
     } catch (error) {
       console.error("Login error:", error);
@@ -113,6 +119,7 @@ export const AuthUserProvider = ({ children }: { children: ReactNode }) => {
         credentials: "include",
       });
       setAuthUser(null);
+      setAccessToken(null);
     } finally {
       setLoading(false);
     }
@@ -122,11 +129,27 @@ export const AuthUserProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     console.log("AuthUserProvider - Initialisation du contexte");
     refreshUser();
+    // tente d'obtenir un access token via refresh cookie httpOnly
+    (async () => {
+      try {
+        const res = await fetch("http://localhost:3001/api/auth/refresh", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}), // backend lit le cookie
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.accessToken) setAccessToken(data.accessToken);
+        }
+      } catch {}
+    })();
   }, []);
 
   const contextValue: AuthContextType = {
     authUser,
     loading,
+    accessToken,
     login,
     logout,
     refreshUser,
