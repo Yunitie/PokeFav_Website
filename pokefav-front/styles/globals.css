@@ -125,10 +125,47 @@
     color: #5f62e2;
   }
 
+  /* Dégradé de transition au survol des liens*/
   .animate,
   a,
   a:hover {
     transition: all 0.2s ease-in-out;
     cursor: pointer;
+  }
+
+  /* Curseurs pour différents types d'éléments cliquables */
+  button,
+  .btn,
+  .clickable,
+  [role="button"] {
+    cursor: pointer;
+  }
+
+  /* Curseur pour les éléments draggables */
+  .draggable {
+    cursor: grab;
+  }
+
+  .draggable:active {
+    cursor: grabbing;
+  }
+
+  /* Curseur pour les éléments désactivés */
+  button:disabled,
+  .disabled {
+    cursor: not-allowed;
+  }
+
+  /* Curseur pour les zones de texte */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea {
+    cursor: text;
+  }
+
+  /* Curseur pour les éléments en chargement */
+  .loading {
+    cursor: wait;
   }
 }

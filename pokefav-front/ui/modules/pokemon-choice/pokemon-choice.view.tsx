@@ -3,6 +3,7 @@ import { Pokemon } from "@/types/pokemon";
 import Spinner from "@/ui/design-system/spinner/spinner";
 import { Typography } from "@/ui/design-system/typography/typography";
 import DisplayPokemon from "@/ui/components/displayPokemon/displayPokemon";
+import { useRef, useEffect, useState } from "react";
 
 interface PokemonChoiceViewProps {
   pokemons: Pokemon[];
@@ -23,6 +24,20 @@ export default function PokemonChoiceView({
   onNewPokemons,
   onPokemonClick,
 }: PokemonChoiceViewProps) {
+  const firstPokemonRef = useRef<HTMLDivElement>(null);
+  const [nameDisplayed, setNameDisplayed] = useState(true);
+  const [typesDisplayed, setTypesDisplayed] = useState(true);
+  const [infoDisplayed, setInfoDisplayed] = useState(true);
+
+  // Scroll vers le premier pokémon quand les pokémons changent
+  useEffect(() => {
+    if (pokemons.length > 0 && firstPokemonRef.current) {
+      firstPokemonRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [pokemons]);
   // Affiche le spinner de chargement
   if (loading) {
     return (
@@ -66,33 +81,72 @@ export default function PokemonChoiceView({
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <div className="mx-auto text-center ">
+        <div className="mx-auto text-center">
           <Typography variant="h1" className="mb-8">
             Choose your favorite
           </Typography>
 
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <label className="text-sm">Nombre de Pokémons:</label>
-            <select
-              value={count}
-              onChange={(e) => onChangeCount(Number(e.target.value))}
-              className="border rounded px-2 py-1"
-            >
-              {[2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
+          <div className="flex items-center justify-center gap-5 mb-6 flex-wrap">
+            <div className="flex items-center justify-center gap-2">
+              <Typography variant="body-base">Number of Pokemons</Typography>
+              <select
+                value={count}
+                onChange={(e) => onChangeCount(Number(e.target.value))}
+                className="border rounded px-2 py-1"
+              >
+                {[2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center justify-center gap-3">
+              <div className="flex gap-2">
+                <Typography variant="body-base">Name</Typography>
+                <input
+                  type="checkbox"
+                  checked={nameDisplayed}
+                  onChange={(e) => setNameDisplayed(e.target.checked)}
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <Typography variant="body-base">Types</Typography>
+                <input
+                  type="checkbox"
+                  checked={typesDisplayed}
+                  onChange={(e) => setTypesDisplayed(e.target.checked)}
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <Typography variant="body-base">Informations</Typography>
+                <input
+                  type="checkbox"
+                  checked={infoDisplayed}
+                  onChange={(e) => setInfoDisplayed(e.target.checked)}
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="flex flex-wrap justify-center items-start gap-4">
+          <div className="flex flex-wrap justify-center items-start gap-2">
             {pokemons.map((pkmn, idx) => (
-              <DisplayPokemon
+              <div
                 key={pkmn.id ?? idx}
-                pokemon={pkmn}
-                onClick={onClickInternal}
-              />
+                ref={idx === 0 ? firstPokemonRef : null}
+                className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-[calc(20%-0.5rem)] min-w-0 flex-shrink-0"
+              >
+                <DisplayPokemon
+                  pokemon={pkmn}
+                  onClick={onClickInternal}
+                  nameDisplayed={nameDisplayed}
+                  typesDisplayed={typesDisplayed}
+                  infoDisplayed={infoDisplayed}
+                />
+              </div>
             ))}
           </div>
 
