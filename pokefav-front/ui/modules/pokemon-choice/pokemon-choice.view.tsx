@@ -56,17 +56,23 @@ export default function PokemonChoiceView({
         <div className="container mx-auto px-4 py-8">
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
             <Typography variant="h2" className="text-red-800 mb-4">
-              Erreur
+              Error
             </Typography>
-            <Typography variant="body-base" className="text-red-600">
+            <Typography variant="body-base" className="text-red-600 mb-4">
               {error}
             </Typography>
-            <button
-              onClick={onNewPokemons}
-              className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-            >
-              Réessayer
-            </button>
+            {error.includes("Session expired") ? (
+              <div className="text-sm text-gray-600">
+                You will be redirected automatically...
+              </div>
+            ) : (
+              <button
+                onClick={onNewPokemons}
+                className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Try Again
+              </button>
+            )}
           </div>
         </div>
       </Layout>

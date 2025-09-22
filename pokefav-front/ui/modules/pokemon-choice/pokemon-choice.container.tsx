@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { Pokemon } from "@/types/pokemon";
 import { PokemonRandomService } from "@/lib/pokemon-random";
 import PokemonChoiceView from "./pokemon-choice.view";
-import { useAuth } from "@/context/AuthUserContext";
+import { useHttp } from "@/context/HttpClientContext";
 
 export default function PokemonChoiceContainer() {
-  const { accessToken } = useAuth();
+  const http = useHttp();
   const [pokemons, setPokemons] = useState<Pokemon[]>([]);
   const [count, setCount] = useState<number>(3);
   const [loading, setLoading] = useState(true);
@@ -62,58 +62,19 @@ export default function PokemonChoiceContainer() {
 
   const handlePokemonClick = async (pokemon: Pokemon) => {
     try {
-      let tokenToUse = accessToken;
-      if (!tokenToUse) {
-        // tente un refresh transparent
-        try {
-          const r = await fetch("http://localhost:3001/api/auth/refresh", {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({}),
-          });
-          if (r.ok) {
-            const data = await r.json();
-            if (data && typeof data.accessToken === "string") {
-              tokenToUse = data.accessToken;
-            }
-          }
-        } catch {}
-      }
-      if (!tokenToUse) {
-        setError("Vous devez être connecté pour voter");
-        return;
-      }
       const clickedPokemonId = pokemon.id;
       const visiblePokemonIds = pokemons.map((pkmn) => pkmn.id);
-      const res = await fetch("http://localhost:3001/api/pokemon/rank", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${tokenToUse}`,
-        },
-        body: JSON.stringify({ clickedPokemonId, visiblePokemonIds }),
+
+      // Envoi via le wrapper HTTP (gère token, refresh 401 et retry)
+      await http.post("/api/pokemon/rank", {
+        clickedPokemonId,
+        visiblePokemonIds,
       });
-      if (!res.ok) {
-        let message = "Erreur lors de l'envoi du vote";
-        try {
-          const data: unknown = await res.json();
-          const obj =
-            data && typeof data === "object"
-              ? (data as Record<string, unknown>)
-              : null;
-          if (obj && typeof obj.error === "string") {
-            message = obj.error;
-          }
-        } catch {}
-        throw new Error(message);
-      }
-      // Optionnel: exploiter { updated, score }
-      await res.json().catch(() => undefined);
+
       // Rafraîchir la liste après un vote réussi
       handleNewPokemons();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Erreur inconnue");
+      setError(e instanceof Error ? e.message : "Unknown error");
     }
   };
 

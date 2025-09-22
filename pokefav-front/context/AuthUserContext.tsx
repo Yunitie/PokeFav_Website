@@ -23,6 +23,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  refreshAccessToken: () => Promise<string | null>;
 }
 
 // Valeur par défaut pour éviter les erreurs pendant l'hydratation
@@ -37,6 +38,9 @@ const defaultAuthContext: AuthContextType = {
     throw new Error("Auth context not initialized");
   },
   refreshUser: async () => {
+    throw new Error("Auth context not initialized");
+  },
+  refreshAccessToken: async () => {
     throw new Error("Auth context not initialized");
   },
 };
@@ -125,6 +129,44 @@ export const AuthUserProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Refresh du token d'accès
+  const refreshAccessToken = async (): Promise<string | null> => {
+    try {
+      const res = await fetch("http://localhost:3001/api/auth/refresh", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.accessToken) {
+          setAccessToken(data.accessToken);
+          return data.accessToken;
+        }
+      }
+
+      // Si refresh échoue, nettoyer l'état
+      if (res.status === 401) {
+        setAuthUser(null);
+        setAccessToken(null);
+        // Redirection vers login après un court délai
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 1000);
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error during token refresh:", error);
+      // En cas d'erreur réseau, nettoyer aussi l'état
+      setAuthUser(null);
+      setAccessToken(null);
+      return null;
+    }
+  };
+
   // Vérifie l'utilisateur au chargement (seulement côté client)
   useEffect(() => {
     console.log("AuthUserProvider - Initialisation du contexte");
@@ -153,6 +195,7 @@ export const AuthUserProvider = ({ children }: { children: ReactNode }) => {
     login,
     logout,
     refreshUser,
+    refreshAccessToken,
   };
 
   return (

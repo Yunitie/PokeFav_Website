@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "../styles/globals.css";
 import { AuthUserProvider } from "../context/AuthUserContext";
+import { HttpClientProvider } from "@/context/HttpClientContext";
 
 export const metadata: Metadata = {
   title: "PokeFav - Your favorite Pokemon",
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <AuthUserProvider>{children}</AuthUserProvider>
+        <AuthUserProvider>
+          <HttpClientProvider>{children}</HttpClientProvider>
+        </AuthUserProvider>
       </body>
     </html>
   );
