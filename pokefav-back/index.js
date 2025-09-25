@@ -53,8 +53,9 @@ app.use("/api/auth/reset-password", authResetPasswordRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/profile", profileRouter);
 app.use("/api/pokemon/random", pokemonRandomRouter);
-app.use("/api/pokemon", pokemonByIdRouter);
+// Routes spécifiques avant la route générique "/api/pokemon/:id"
 app.use("/api/pokemon/rank", pokemonRankRouter);
+app.use("/api/pokemon", pokemonByIdRouter);
 
 // Middleware d'erreur basique
 app.use((err, req, res, next) => {

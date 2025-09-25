@@ -75,7 +75,7 @@ export default function DisplayPokemon({
 
         {/* Informations de base */}
         {infoDisplayed && (
-          <div className="hidden md:flex justify-center gap-6 mb-4 text-sm">
+          <div className="flex flex-wrap justify-center gap-4 md:gap-6 mb-4 text-sm">
             <div className="text-center">
               <span className="font-medium text-gray-600">Génération:</span>
               <p>{pokemon.generation}</p>

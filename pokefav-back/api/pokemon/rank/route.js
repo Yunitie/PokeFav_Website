@@ -7,6 +7,44 @@ const { requireAuth } = require("../../../requireAuth"); // doit attacher userId
 /**
  * @swagger
  * /api/pokemon/rank:
+ *   get:
+ *     summary: Récupérer le classement complet de l'utilisateur
+ *     description: Retourne la liste des Pokemons classés par préférence (score décroissant) pour l'utilisateur connecté
+ *     tags: [Pokémon]
+ *     responses:
+ *       200:
+ *         description: Liste des classements de l'utilisateur
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   score:
+ *                     type: integer
+ *                   pokemon:
+ *                     type: object
+ *       401:
+ *         description: Non autorisé
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *       500:
+ *         description: Erreur serveur
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *     security:
+ *       - bearerAuth: []
  *   post:
  *     summary: Mettre à jour le classement d'un Pokémon
  *     description: Met à jour le classement d'un Pokémon pour un utilisateur
@@ -130,6 +168,50 @@ router.post("/", requireAuth, async (req, res) => {
     return res.json({ updated: false, score: existing.score });
   } catch (err) {
     console.error("POST /api/pokemon/rank error", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// GET: classement complet de l'utilisateur courant
+router.get("/", requireAuth, async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const ranks = await prisma.pokemonRank.findMany({
+      where: { userId },
+      orderBy: { score: "desc" },
+      include: {
+        pokemon: {
+          select: {
+            id: true,
+            pokedexId: true,
+            name: true,
+            artworkUrl: true,
+            type1: true,
+            type2: true,
+            generation: true,
+            height: true,
+            weight: true,
+            stats: {
+              select: {
+                hp: true,
+                attack: true,
+                defense: true,
+                specialAttack: true,
+                specialDefense: true,
+                speed: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const payload = ranks.map((r) => ({ score: r.score, pokemon: r.pokemon }));
+    return res.json(payload);
+  } catch (err) {
+    console.error("GET /api/pokemon/rank error", err);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 });

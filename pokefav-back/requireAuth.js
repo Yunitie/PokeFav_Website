@@ -11,18 +11,18 @@ if (!JWT_SECRET) {
 function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Token manquant" });
+    return res.status(401).json({ error: "Vous devez être connecté" });
   }
   const token = authHeader.split(" ")[1];
   try {
     const payload = jwt.verify(token, JWT_SECRET);
     if (!payload || !payload.userId) {
-      return res.status(401).json({ error: "Token invalide" });
+      return res.status(401).json({ error: "Vous devez être connecté" });
     }
     req.user = payload;
     next();
   } catch (err) {
-    return res.status(401).json({ error: "Token invalide" });
+    return res.status(401).json({ error: "Vous devez être connecté" });
   }
 }
 
