@@ -5,6 +5,7 @@ import { Pokemon } from "@/types/pokemon";
 import { PokemonRandomService } from "@/lib/pokemon-random";
 import PokemonChoiceView from "./pokemon-choice.view";
 import { useHttp } from "@/context/HttpClientContext";
+import { usePokemonChoice } from "@/hooks/use-pokemon-choice";
 
 export default function PokemonChoiceContainer() {
   const http = useHttp();
@@ -12,6 +13,12 @@ export default function PokemonChoiceContainer() {
   const [count, setCount] = useState<number>(3);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const {
+    selectedGenerations,
+    generationOptions,
+    toggleGeneration,
+    resetFilters,
+  } = usePokemonChoice();
 
   // Récupère N Pokémons aléatoires
   useEffect(() => {
@@ -21,7 +28,8 @@ export default function PokemonChoiceContainer() {
         setLoading(true);
         setError(null);
         const randomPokemons = await PokemonRandomService.getRandomPokemons(
-          count
+          count,
+          selectedGenerations.length > 0 ? selectedGenerations : undefined
         );
         if (!cancelled) setPokemons(randomPokemons);
       } catch (err) {
@@ -36,7 +44,7 @@ export default function PokemonChoiceContainer() {
     return () => {
       cancelled = true;
     };
-  }, [count]);
+  }, [count, selectedGenerations]);
 
   // Récupère un nouveau set de Pokémons aléatoires sans refresh de page
   const handleNewPokemons = () => {
@@ -47,7 +55,8 @@ export default function PokemonChoiceContainer() {
     const fetchRandomPokemons = async () => {
       try {
         const randomPokemons = await PokemonRandomService.getRandomPokemons(
-          count
+          count,
+          selectedGenerations.length > 0 ? selectedGenerations : undefined
         );
         setPokemons(randomPokemons);
       } catch (err) {
@@ -87,6 +96,10 @@ export default function PokemonChoiceContainer() {
       error={error}
       onNewPokemons={handleNewPokemons}
       onPokemonClick={handlePokemonClick}
+      selectedGenerations={selectedGenerations}
+      generationOptions={generationOptions}
+      onToggleGeneration={toggleGeneration}
+      onResetFilters={resetFilters}
     />
   );
 }

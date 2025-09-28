@@ -13,6 +13,10 @@ interface PokemonChoiceViewProps {
   error: string | null;
   onNewPokemons: () => void;
   onPokemonClick?: (pokemon: Pokemon) => void;
+  selectedGenerations: string[];
+  generationOptions: string[];
+  onToggleGeneration: (generation: string) => void;
+  onResetFilters: () => void;
 }
 
 export default function PokemonChoiceView({
@@ -23,6 +27,10 @@ export default function PokemonChoiceView({
   error,
   onNewPokemons,
   onPokemonClick,
+  selectedGenerations,
+  generationOptions,
+  onToggleGeneration,
+  onResetFilters,
 }: PokemonChoiceViewProps) {
   const firstPokemonRef = useRef<HTMLDivElement>(null);
   const [nameDisplayed, setNameDisplayed] = useState(true);
@@ -92,48 +100,82 @@ export default function PokemonChoiceView({
             Choose your favorite
           </Typography>
 
-          <div className="flex items-center justify-center gap-5 mb-6 flex-wrap">
-            <div className="flex items-center justify-center gap-2">
-              <Typography variant="body-base">Number of Pokemons</Typography>
-              <select
-                value={count}
-                onChange={(e) => onChangeCount(Number(e.target.value))}
-                className="border rounded px-2 py-1"
-              >
-                {[2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                  <option key={n} value={n}>
-                    {n}
-                  </option>
-                ))}
-              </select>
+          {/* Contrôles d'affichage */}
+          <div className="space-y-3 mb-6">
+            <div className="flex items-center justify-center gap-5 flex-wrap">
+              <div className="flex items-center justify-center gap-2">
+                <Typography variant="body-base">Number of Pokemons</Typography>
+                <select
+                  value={count}
+                  onChange={(e) => onChangeCount(Number(e.target.value))}
+                  className="border rounded px-2 py-1"
+                >
+                  {[2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex items-center justify-center gap-3">
+                <div className="flex gap-2">
+                  <Typography variant="body-base">Name</Typography>
+                  <input
+                    type="checkbox"
+                    checked={nameDisplayed}
+                    onChange={(e) => setNameDisplayed(e.target.checked)}
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <Typography variant="body-base">Types</Typography>
+                  <input
+                    type="checkbox"
+                    checked={typesDisplayed}
+                    onChange={(e) => setTypesDisplayed(e.target.checked)}
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <Typography variant="body-base">Informations</Typography>
+                  <input
+                    type="checkbox"
+                    checked={infoDisplayed}
+                    onChange={(e) => setInfoDisplayed(e.target.checked)}
+                  />
+                </div>
+              </div>
             </div>
-
-            <div className="flex items-center justify-center gap-3">
-              <div className="flex gap-2">
-                <Typography variant="body-base">Name</Typography>
-                <input
-                  type="checkbox"
-                  checked={nameDisplayed}
-                  onChange={(e) => setNameDisplayed(e.target.checked)}
-                />
-              </div>
-
-              <div className="flex gap-2">
-                <Typography variant="body-base">Types</Typography>
-                <input
-                  type="checkbox"
-                  checked={typesDisplayed}
-                  onChange={(e) => setTypesDisplayed(e.target.checked)}
-                />
-              </div>
-
-              <div className="flex gap-2">
-                <Typography variant="body-base">Informations</Typography>
-                <input
-                  type="checkbox"
-                  checked={infoDisplayed}
-                  onChange={(e) => setInfoDisplayed(e.target.checked)}
-                />
+            <div className="flex flex-col items-center justify-center gap-5">
+              {/* Filtre de génération */}
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <Typography variant="body-base">Generations :</Typography>
+                {generationOptions.map((gen) => {
+                  const active = selectedGenerations.includes(gen);
+                  return (
+                    <button
+                      key={gen}
+                      type="button"
+                      onClick={() => onToggleGeneration(gen)}
+                      className={`px-2 py-1 rounded border ${
+                        active
+                          ? "bg-primary text-white border-primary"
+                          : "bg-white text-gray-800"
+                      }`}
+                    >
+                      {gen}
+                    </button>
+                  );
+                })}
+                {selectedGenerations.length > 0 && (
+                  <button
+                    onClick={onResetFilters}
+                    className="px-3 py-1 border rounded"
+                  >
+                    Reset
+                  </button>
+                )}
               </div>
             </div>
           </div>

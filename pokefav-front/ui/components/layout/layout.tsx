@@ -6,15 +6,9 @@ interface Props {
   children: React.ReactNode;
   isDisplayingBreadcrumbs?: boolean;
   withSideBar?: boolean;
-  // sessionStatus?: SessionStatusType;
 }
 
-const Layout = ({
-  children,
-  // isDisplayingBreadcrumbs = true,
-  withSideBar,
-}: // sessionStatus,
-Props) => {
+const Layout = ({ children, withSideBar }: Props) => {
   let view: React.ReactElement = <></>;
 
   view = (
@@ -23,9 +17,6 @@ Props) => {
       {withSideBar ? (
         <Container className="mb-14">
           <div className="grid grid-cols-12 gap-7">
-            {/* <div className="col-span-3">
-            <UserAccountNavigation />
-          </div> */}
             <div className="col-span-9">{children}</div>
           </div>
         </Container>
@@ -35,11 +26,6 @@ Props) => {
       <ScrollToTop />
     </>
   );
-  //   <Session sessionStatus={sessionStatus}>
-  //  <Navigation />
-  //   {isDisplayingBreadcrumbs && <BreadCrumbs />}
-  //   { <Footer />
-  // </Session> }
 
   return view;
 };

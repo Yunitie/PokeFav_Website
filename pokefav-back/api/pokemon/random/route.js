@@ -10,6 +10,13 @@ const router = express.Router();
  *     summary: Récupérer un Pokémon aléatoire
  *     description: Retourne un Pokémon aléatoire sélectionné dans toute la table Pokemon
  *     tags: [Pokémon]
+ *     parameters:
+ *       - in: query
+ *         name: generations
+ *         description: "Liste des générations séparées par des virgules (ex: 1,2,3)"
+ *         required: false
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         description: Pokémon aléatoire avec ses statistiques
@@ -63,20 +70,37 @@ const router = express.Router();
  */
 router.get("/", async (req, res) => {
   try {
-    // Récupère le nombre total de Pokémon dans la base
-    const totalPokemon = await prisma.pokemon.count();
+    // Récupère les générations depuis les paramètres de requête
+    const { generations } = req.query;
+    let generationFilter = {};
+
+    if (generations) {
+      const generationList = generations.split(",").map((g) => g.trim());
+      generationFilter = {
+        generation: {
+          in: generationList,
+        },
+      };
+    }
+
+    // Récupère le nombre total de Pokémon dans la base (avec filtre de génération si applicable)
+    const totalPokemon = await prisma.pokemon.count({
+      where: generationFilter,
+    });
 
     if (totalPokemon === 0) {
-      return res
-        .status(404)
-        .json({ error: "Aucun Pokémon trouvé dans la base de données" });
+      return res.status(404).json({
+        error:
+          "Aucun Pokémon trouvé dans la base de données pour les générations sélectionnées",
+      });
     }
 
     // Génère un offset aléatoire
     const randomOffset = Math.floor(Math.random() * totalPokemon);
 
-    // Récupère un Pokémon aléatoire avec ses statistiques
+    // Récupère un Pokémon aléatoire avec ses statistiques (avec filtre de génération si applicable)
     const randomPokemon = await prisma.pokemon.findFirst({
+      where: generationFilter,
       skip: randomOffset,
       include: {
         stats: true,

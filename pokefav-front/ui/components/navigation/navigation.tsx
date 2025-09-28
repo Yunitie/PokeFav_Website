@@ -40,7 +40,6 @@ const Navigation = ({}: Props) => {
     <>
       <ActiveLink href="/pokemon-choice">Pokemon</ActiveLink>
       <ActiveLink href="/my-ranking">My Ranking</ActiveLink>
-      <ActiveLink href="/profile">Profile</ActiveLink>
     </>
   );
 
@@ -155,14 +154,7 @@ const Navigation = ({}: Props) => {
               </Typography>
               <div className="flex flex-col space-y-3">
                 <Link
-                  href="/design-system"
-                  onClick={closeMobileMenu}
-                  className="text-gray-700 hover:text-primary transition-colors py-2"
-                >
-                  Design System
-                </Link>
-                <Link
-                  href="/pokemon"
+                  href="/pokemon-choice"
                   onClick={closeMobileMenu}
                   className="text-gray-700 hover:text-primary transition-colors py-2"
                 >
@@ -174,13 +166,6 @@ const Navigation = ({}: Props) => {
                   className="text-gray-700 hover:text-primary transition-colors py-2"
                 >
                   My Ranking
-                </Link>
-                <Link
-                  href="/profile"
-                  onClick={closeMobileMenu}
-                  className="text-gray-700 hover:text-primary transition-colors py-2"
-                >
-                  Profile
                 </Link>
               </div>
             </div>
