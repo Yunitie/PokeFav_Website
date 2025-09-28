@@ -1,10 +1,6 @@
-// import { SessionStatusType } from "@/types/session-status-type";
-// import BreadCrumbs from "../breadcrumbs/breadcrumbs";
 import Container from "../container/container";
-// import Footer from "../navigation/footer";
 import Navigation from "../navigation/navigation";
-// import UserAccountNavigation from "../navigation/user-account-navigation";
-// import { Session } from "../session/session";
+import ScrollToTop from "../scroll-to-top/scroll-to-top";
 
 interface Props {
   children: React.ReactNode;
@@ -36,6 +32,7 @@ Props) => {
       ) : (
         <>{children}</>
       )}
+      <ScrollToTop />
     </>
   );
   //   <Session sessionStatus={sessionStatus}>

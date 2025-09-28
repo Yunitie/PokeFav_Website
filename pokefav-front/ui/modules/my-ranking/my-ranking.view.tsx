@@ -22,6 +22,8 @@ export default function MyRankingView({ ranked }: MyRankingViewProps) {
     typeOptions,
     selectedGenerations,
     selectedType,
+    searchText,
+    setSearchText,
     toggleGeneration,
     setSelectedType,
     resetFilters,
@@ -37,6 +39,13 @@ export default function MyRankingView({ ranked }: MyRankingViewProps) {
       <div className="container mx-auto px-4 py-8 flex flex-col gap-6">
         {/* Filtres */}
         <div className="flex flex-wrap items-center gap-6">
+          <input
+            type="text"
+            placeholder="Search Pokemon..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            className="border rounded px-3 py-1"
+          />
           <div className="flex flex-wrap items-center gap-1">
             <Typography variant="body-base">Generations :</Typography>
             {generationOptions.map((gen) => {
@@ -71,7 +80,7 @@ export default function MyRankingView({ ranked }: MyRankingViewProps) {
           </select>
           {/* Toggles d'affichage */}
           <DisplayOptionsToggle value={display} onChange={setDisplay} />
-          {(selectedGenerations.length > 0 || selectedType) && (
+          {(selectedGenerations.length > 0 || selectedType || searchText) && (
             <button onClick={resetFilters} className="px-3 py-1 border rounded">
               Reset
             </button>

@@ -14,6 +14,7 @@ export type RankedPokemon = { score: number; pokemon: Pokemon };
 export function useMyRanking(ranked: RankedPokemon[]) {
 	const [selectedGenerations, setSelectedGenerations] = useState<string[]>([]);
 	const [selectedType, setSelectedType] = useState<string>("");
+	const [searchText, setSearchText] = useState<string>("");
 
     // Options de filtres (dérivées des données)
 	const generationOptions = useMemo(() => {
@@ -37,7 +38,7 @@ export function useMyRanking(ranked: RankedPokemon[]) {
 		).sort();
 	}, [ranked]);
 
-    // Filtre les données en fonction des filtres sélectionnés
+    // Filtre les données en fonction des filtres sélectionnés (sans le texte)
 	const filteredRanked = useMemo(() => {
 		return ranked.filter(({ pokemon }) => {
 			const matchesGen = selectedGenerations.length
@@ -50,7 +51,7 @@ export function useMyRanking(ranked: RankedPokemon[]) {
 		});
 	}, [ranked, selectedGenerations, selectedType]);
 
-    // Ajoute le rang à chaque item
+    // Ajoute le rang à chaque item (basé sur les filtres sans texte)
 	const rows = useMemo(() => {
 		let lastScore: number | null = null;
 		let lastRank = 0;
@@ -63,13 +64,22 @@ export function useMyRanking(ranked: RankedPokemon[]) {
 		});
 	}, [filteredRanked]);
 
-    // Groupe les rangs par rang
+	// Applique le filtre de texte sur les données déjà rangées
+	const textFilteredRows = useMemo(() => {
+		return rows.filter(({ pokemon }) => {
+			return searchText
+				? pokemon.name.toLowerCase().includes(searchText.toLowerCase())
+				: true;
+		});
+	}, [rows, searchText]);
+
+    // Groupe les rangs par rang (utilise textFilteredRows)
 	const groups = useMemo(() => {
-		return rows.reduce((acc: Record<number, typeof rows>, item) => {
+		return textFilteredRows.reduce((acc: Record<number, typeof textFilteredRows>, item) => {
 			(acc[item.rank] ??= []).push(item);
 			return acc;
-		}, {} as Record<number, typeof rows>);
-	}, [rows]);
+		}, {} as Record<number, typeof textFilteredRows>);
+	}, [textFilteredRows]);
 
     // Trie les rangs par ordre croissant
 	const orderedRanks = useMemo(() => {
@@ -91,6 +101,7 @@ export function useMyRanking(ranked: RankedPokemon[]) {
 	function resetFilters() {
 		setSelectedGenerations([]);
 		setSelectedType("");
+		setSearchText("");
 	}
 
 	return {
@@ -100,6 +111,8 @@ export function useMyRanking(ranked: RankedPokemon[]) {
 		// filters state
 		selectedGenerations,
 		selectedType,
+		searchText,
+		setSearchText,
 		// options
 		generationOptions,
 		typeOptions,
