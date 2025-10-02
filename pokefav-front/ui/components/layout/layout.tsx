@@ -1,6 +1,7 @@
 import Container from "../container/container";
 import Navigation from "../navigation/navigation";
 import ScrollToTop from "../scroll-to-top/scroll-to-top";
+import Footer from "../footer/footer";
 
 interface Props {
   children: React.ReactNode;
@@ -24,6 +25,7 @@ const Layout = ({ children, withSideBar }: Props) => {
         <>{children}</>
       )}
       <ScrollToTop />
+      <Footer />
     </>
   );
 

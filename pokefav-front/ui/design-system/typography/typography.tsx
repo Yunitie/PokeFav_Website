@@ -25,6 +25,7 @@ interface Props {
     | "black"
     | "gray"
     | "gray-600"
+    | "gray-500"
     | "white"
     | "primary"
     | "secondary"
@@ -103,6 +104,9 @@ export const Typography = ({
       break;
     case "gray-600":
       colorClasses = "text-gray-600";
+      break;
+    case "gray-500":
+      colorClasses = "text-gray-500";
       break;
     case "white":
       colorClasses = "text-white";
