@@ -31,7 +31,7 @@ const Navigation = ({}: Props) => {
         Login
       </Button>
       <Button baseUrl="/login/register" size="small" variant="secondary">
-        Join
+        Register
       </Button>
     </div>
   );
@@ -40,9 +40,11 @@ const Navigation = ({}: Props) => {
     <>
       <ActiveLink href="/pokemon-choice">Pokemon</ActiveLink>
       <ActiveLink href="/my-ranking">My Ranking</ActiveLink>
+      <ActiveLink href="/profile">Profile</ActiveLink>
     </>
   );
 
+  // Barre de navigation si connecté
   const userSection = (
     <>
       {loading ? (
@@ -167,6 +169,13 @@ const Navigation = ({}: Props) => {
                 >
                   My Ranking
                 </Link>
+                <Link
+                  href="/profile"
+                  onClick={closeMobileMenu}
+                  className="text-gray-700 hover:text-primary transition-colors py-2"
+                >
+                  Profile
+                </Link>
               </div>
             </div>
 
@@ -195,7 +204,7 @@ const Navigation = ({}: Props) => {
                       variant="secondary"
                       fullWith
                     >
-                      Join
+                      Register
                     </Button>
                   </div>
                 ) : (

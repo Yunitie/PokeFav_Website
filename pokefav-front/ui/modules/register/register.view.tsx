@@ -139,6 +139,9 @@ export default function RegisterView({
                 </Typography>
               </div>
             )}
+            <Typography variant="body-sm" theme="gray-600">
+              Your informations will be used only to create your account
+            </Typography>
 
             {/* Register button */}
             <Button
