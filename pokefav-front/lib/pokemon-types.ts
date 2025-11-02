@@ -34,28 +34,28 @@ const reverseTypeTranslationMap: Record<string, string> = Object.fromEntries(
 );
 
 /**
- * Color mapping for Pokemon types (official Pokemon colors)
+ * Color mapping for Pokemon types (pastel colors)
  * Returns Tailwind CSS classes for background and text colors
  */
 export const typeColorMap: Record<string, { bg: string; text: string }> = {
-  Normal: { bg: "bg-gray-300", text: "text-gray-800" },
-  Fire: { bg: "bg-red-600", text: "text-white" },
-  Water: { bg: "bg-blue-400", text: "text-white" },
-  Electric: { bg: "bg-yellow-400", text: "text-gray-900" },
-  Grass: { bg: "bg-green-400", text: "text-white" },
-  Ice: { bg: "bg-cyan-200", text: "text-gray-900" },
-  Fighting: { bg: "bg-amber-600", text: "text-white" },
-  Poison: { bg: "bg-purple-500", text: "text-white" },
-  Ground: { bg: "bg-amber-900", text: "text-white" },
-  Flying: { bg: "bg-indigo-300", text: "text-gray-900" },
-  Psychic: { bg: "bg-pink-500", text: "text-white" },
-  Bug: { bg: "bg-lime-500", text: "text-white" },
-  Rock: { bg: "bg-amber-700", text: "text-white" },
-  Ghost: { bg: "bg-purple-700", text: "text-white" },
-  Dragon: { bg: "bg-violet-600", text: "text-white" },
-  Dark: { bg: "bg-gray-800", text: "text-white" },
-  Steel: { bg: "bg-gray-400", text: "text-gray-900" },
-  Fairy: { bg: "bg-pink-300", text: "text-pink-900" },
+  Normal: { bg: "bg-gray-200", text: "text-gray-700" },
+  Fire: { bg: "bg-orange-200", text: "text-orange-800" },
+  Water: { bg: "bg-blue-200", text: "text-blue-800" },
+  Electric: { bg: "bg-yellow-200", text: "text-yellow-800" },
+  Grass: { bg: "bg-green-200", text: "text-green-800" },
+  Ice: { bg: "bg-cyan-100", text: "text-cyan-800" },
+  Fighting: { bg: "bg-rose-200", text: "text-rose-800" },
+  Poison: { bg: "bg-purple-200", text: "text-purple-800" },
+  Ground: { bg: "bg-amber-200", text: "text-amber-800" },
+  Flying: { bg: "bg-indigo-200", text: "text-indigo-800" },
+  Psychic: { bg: "bg-pink-200", text: "text-pink-800" },
+  Bug: { bg: "bg-lime-200", text: "text-lime-800" },
+  Rock: { bg: "bg-stone-200", text: "text-stone-800" },
+  Ghost: { bg: "bg-purple-300", text: "text-purple-900" },
+  Dragon: { bg: "bg-violet-200", text: "text-violet-800" },
+  Dark: { bg: "bg-gray-300", text: "text-gray-800" },
+  Steel: { bg: "bg-slate-200", text: "text-slate-800" },
+  Fairy: { bg: "bg-pink-100", text: "text-pink-800" },
 };
 
 /**
