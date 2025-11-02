@@ -58,21 +58,19 @@ export default function ForgotPasswordContainer() {
         // Succès - l'API a traité la demande
         setSuccess(
           data.message ||
-            "Si un compte existe avec cet email, vous recevrez un lien de récupération dans quelques minutes."
+            "If an account exists with this email, you will receive a recovery link in a few minutes."
         );
         // Réinitialisation du formulaire
         setEmail("");
       } else {
         // Erreur retournée par l'API
-        setError(
-          data.error || "Une erreur s'est produite. Veuillez réessayer."
-        );
+        setError(data.error || "An error occurred. Please try again.");
       }
     } catch (error) {
       // Gestion des erreurs de réseau ou autres erreurs
       console.error("Erreur lors de l'appel API:", error);
       setError(
-        "Impossible de contacter le serveur. Vérifiez votre connexion et réessayez."
+        "Unable to contact the server. Check your connection and try again."
       );
     } finally {
       // Désactivation de l'état de chargement dans tous les cas

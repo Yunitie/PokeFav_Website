@@ -85,7 +85,8 @@ router.post("/", async (req, res) => {
     });
 
     // Construction du lien de réinitialisation
-    const resetLink = `http://localhost:3000/reset-password?token=${token}&email=${encodeURIComponent(
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    const resetLink = `${frontendUrl}/reset-password?token=${token}&email=${encodeURIComponent(
       email
     )}`;
     console.log("Lien de réinitialisation généré:", resetLink);

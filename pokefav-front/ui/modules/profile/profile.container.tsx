@@ -23,7 +23,7 @@ export function ProfileContainer() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const displayName = authUser?.displayName ?? "Utilisateur";
+  const displayName = authUser?.displayName ?? "User";
   const email = authUser?.email ?? "";
 
   const onRequestPasswordReset = useCallback(async () => {
@@ -33,14 +33,12 @@ export function ProfileContainer() {
     setLoadingReset(true);
     try {
       await http.post("/api/auth/forgot-password", { email });
-      setSuccessMessage(
-        "Un email de modification du mot de passe a été envoyé."
-      );
+      setSuccessMessage("A password reset email has been sent.");
     } catch (err: unknown) {
       if (err instanceof Error) {
-        setErrorMessage(err.message ?? "Erreur lors de l’envoi de l’email.");
+        setErrorMessage(err.message ?? "Error sending email.");
       } else {
-        setErrorMessage("Erreur lors de l’envoi de l’email.");
+        setErrorMessage("Error sending email.");
       }
     } finally {
       setLoadingReset(false);
@@ -54,26 +52,24 @@ export function ProfileContainer() {
       setSuccessMessage(null);
 
       // petite sécurité côté front: exigez la saisie exacte du displayName
-      if (confirmationText.trim() !== (authUser.displayName ?? "Utilisateur")) {
-        setErrorMessage("Le texte de confirmation ne correspond pas.");
+      if (confirmationText.trim() !== (authUser.displayName ?? "User")) {
+        setErrorMessage("The confirmation text does not match.");
         return;
       }
 
       setLoadingDelete(true);
       try {
         await http.delete("/api/profile");
-        setSuccessMessage("Compte supprimé. Déconnexion en cours...");
+        setSuccessMessage("Account deleted. Logging out...");
         await logout();
         if (typeof window !== "undefined") {
           window.location.href = "/";
         }
       } catch (err: unknown) {
         if (err instanceof Error) {
-          setErrorMessage(
-            err.message ?? "Erreur lors de la suppression du compte."
-          );
+          setErrorMessage(err.message ?? "Error deleting account.");
         } else {
-          setErrorMessage("Erreur lors de la suppression du compte.");
+          setErrorMessage("Error deleting account.");
         }
       } finally {
         setLoadingDelete(false);
@@ -106,7 +102,7 @@ export function ProfileContainer() {
   );
 
   if (authLoading) {
-    return <div className="p-6">Chargement…</div>;
+    return <div className="p-6">Loading…</div>;
   }
   if (!authUser) {
     if (typeof window !== "undefined") window.location.href = "/login";

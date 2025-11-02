@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { Typography } from "@/ui/design-system/typography/typography";
 import Spinner from "@/ui/design-system/spinner/spinner";
+import { translateType, getTypeColors } from "@/lib/pokemon-types";
 
 interface DisplayPokemonProps {
   pokemon: Pokemon;
@@ -62,14 +63,28 @@ export default function DisplayPokemon({
         {typesDisplayed && (
           <div className="hidden md:flex justify-center gap-2 mb-6">
             {/* Types */}
-            <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-sm">
-              {pokemon.type1}
-            </span>
-            {pokemon.type2 && (
-              <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-sm">
-                {pokemon.type2}
-              </span>
-            )}
+            {(() => {
+              const type1Colors = getTypeColors(pokemon.type1);
+              const type2Colors = pokemon.type2
+                ? getTypeColors(pokemon.type2)
+                : null;
+              return (
+                <>
+                  <span
+                    className={`px-3 py-1 ${type1Colors.bg} ${type1Colors.text} rounded-full text-sm font-medium shadow-sm`}
+                  >
+                    {translateType(pokemon.type1)}
+                  </span>
+                  {pokemon.type2 && type2Colors && (
+                    <span
+                      className={`px-3 py-1 ${type2Colors.bg} ${type2Colors.text} rounded-full text-sm font-medium shadow-sm`}
+                    >
+                      {translateType(pokemon.type2)}
+                    </span>
+                  )}
+                </>
+              );
+            })()}
           </div>
         )}
 
@@ -77,15 +92,15 @@ export default function DisplayPokemon({
         {infoDisplayed && (
           <div className="flex flex-wrap justify-center gap-4 md:gap-6 mb-4 text-sm">
             <div className="text-center">
-              <span className="font-medium text-gray-600">Génération:</span>
+              <span className="font-medium text-gray-600">Generation:</span>
               <p>{pokemon.generation}</p>
             </div>
             <div className="text-center">
-              <span className="font-medium text-gray-600">Taille:</span>
+              <span className="font-medium text-gray-600">Height:</span>
               <p>{pokemon.height}m</p>
             </div>
             <div className="text-center">
-              <span className="font-medium text-gray-600">Poids:</span>
+              <span className="font-medium text-gray-600">Weight:</span>
               <p>{pokemon.weight}kg</p>
             </div>
           </div>

@@ -35,10 +35,10 @@ export function ProfileView(props: ProfileViewProps) {
 
       {/* Sécurité */}
       <section className="bg-white rounded-xl shadow-sm border border-zinc-200/60 p-6 space-y-4">
-        <Typography variant="h4">Sécurité</Typography>
+        <Typography variant="h4">Security</Typography>
         <div className="flex flex-col gap-2">
           <Typography variant="body-base">
-            Vous pouvez recevoir un email pour modifier votre mot de passe.
+            You can receive an email to change your password.
           </Typography>
           <div>
             <Button
@@ -46,14 +46,12 @@ export function ProfileView(props: ProfileViewProps) {
               disabled={loadingReset}
               action={onRequestPasswordReset}
             >
-              {loadingReset
-                ? "Envoi en cours…"
-                : "Envoyer l’email de modification"}
+              {loadingReset ? "Sending…" : "Send password reset email"}
             </Button>
           </div>
           <Typography variant="body-sm" className="text-zinc-500">
-            Un lien est envoyé à votre adresse. Vous pouvez aussi passer par la
-            page “Mot de passe oublié”.
+            A link will be sent to your address. You can also use the
+            &quot;Forgot password&quot; page.
           </Typography>
         </div>
       </section>
@@ -61,11 +59,11 @@ export function ProfileView(props: ProfileViewProps) {
       {/* Danger zone */}
       <section className="bg-white rounded-xl shadow-sm border border-red-200/60 p-6 space-y-4">
         <Typography variant="h4" className="text-red-600">
-          Zone dangereuse
+          Danger zone
         </Typography>
         <Typography variant="body-base">
-          Supprimer votre compte est irréversible. Tapez votre nom d’affichage
-          exact pour confirmer.
+          Deleting your account is irreversible. Type your exact display name to
+          confirm.
         </Typography>
         <input
           type="text"
@@ -81,7 +79,7 @@ export function ProfileView(props: ProfileViewProps) {
             disabled={loadingDelete}
             action={() => onDeleteAccount(confirmText)}
           >
-            {loadingDelete ? "Suppression…" : "Supprimer mon compte"}
+            {loadingDelete ? "Deleting…" : "Delete my account"}
           </Button>
         </div>
       </section>

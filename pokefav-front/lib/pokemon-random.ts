@@ -16,7 +16,7 @@ export class PokemonRandomService {
     const response = await fetch(url.toString());
     
     if (!response.ok) {
-      throw new Error('Erreur lors de la récupération du Pokémon aléatoire');
+      throw new Error('Error retrieving random Pokemon');
     }
     
     return response.json();

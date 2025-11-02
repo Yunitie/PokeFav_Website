@@ -7,6 +7,7 @@ import DisplayPokemon from "@/ui/components/displayPokemon/displayPokemon";
 import DisplayOptionsToggle from "@/ui/components/displayPokemon/display-options-toggle";
 import { useMyRanking } from "@/hooks/use-my-ranking";
 import { useState } from "react";
+import { translateType } from "@/lib/pokemon-types";
 
 type Ranked = { score: number; pokemon: Pokemon }[];
 
@@ -74,7 +75,7 @@ export default function MyRankingView({ ranked }: MyRankingViewProps) {
             <option value="">All types</option>
             {typeOptions.map((type) => (
               <option key={type} value={type}>
-                {type}
+                {translateType(type)}
               </option>
             ))}
           </select>

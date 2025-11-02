@@ -11,7 +11,7 @@ const prisma = new PrismaClient();
 
 app.use(
   cors({
-    origin: "http://localhost:3000", // URL de votre frontend Next.js
+    origin: process.env.FRONTEND_URL || "http://localhost:3000", // URL de votre frontend Next.js
     credentials: true, // Permet l'envoi de cookies
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],

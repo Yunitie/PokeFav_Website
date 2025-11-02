@@ -35,9 +35,7 @@ export default function ResetPasswordPage() {
   // Vérification de la présence des paramètres requis
   useEffect(() => {
     if (!token || !email) {
-      setError(
-        "Lien de réinitialisation invalide. Veuillez utiliser le lien reçu par email."
-      );
+      setError("Invalid reset link. Please use the link received by email.");
       setIsValidToken(false);
     } else {
       setIsValidToken(true);
@@ -55,12 +53,12 @@ export default function ResetPasswordPage() {
 
     // Validation des mots de passe
     if (newPassword.length < 6) {
-      setError("Le mot de passe doit contenir au moins 6 caractères.");
+      setError("The password must contain at least 6 characters.");
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas.");
+      setError("The passwords do not match.");
       return;
     }
 
@@ -87,24 +85,22 @@ export default function ResetPasswordPage() {
 
       if (response.ok) {
         // Succès - le mot de passe a été réinitialisé
-        setSuccess(data.message || "Mot de passe réinitialisé avec succès !");
+        setSuccess(data.message || "Password reset successfully!");
         // Redirection vers la page de connexion après 3 secondes
         setTimeout(() => {
           router.push(
-            "/login?message=Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter."
+            "/login?message=Your password has been reset successfully. You can now log in."
           );
         }, 3000);
       } else {
         // Erreur retournée par l'API
-        setError(
-          data.error || "Une erreur s'est produite lors de la réinitialisation."
-        );
+        setError(data.error || "An error occurred during the reset.");
       }
     } catch (error) {
       // Gestion des erreurs de réseau ou autres erreurs
       console.error("Erreur lors de l'appel API:", error);
       setError(
-        "Impossible de contacter le serveur. Vérifiez votre connexion et réessayez."
+        "Unable to contact the server. Check your connection and try again."
       );
     } finally {
       // Désactivation de l'état de chargement dans tous les cas
@@ -122,7 +118,7 @@ export default function ResetPasswordPage() {
               <Logo size="large" />
             </div>
             <Typography variant="h2" component="h1" className="mb-4">
-              Lien invalide
+              Invalid link
             </Typography>
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
               <Typography variant="body-base" theme="danger">
@@ -130,7 +126,7 @@ export default function ResetPasswordPage() {
               </Typography>
             </div>
             <Button action={() => router.push("/login/forgot-password")}>
-              Demander un nouveau lien
+              Request a new link
             </Button>
           </div>
         </Container>
@@ -153,11 +149,11 @@ export default function ResetPasswordPage() {
             </div>
             {/* Titre principal de la page */}
             <Typography variant="h2" component="h1" className="mb-2">
-              Nouveau mot de passe
+              New password
             </Typography>
             {/* Sous-titre descriptif */}
             <Typography variant="body-sm" theme="gray">
-              Définissez votre nouveau mot de passe
+              Set your new password
             </Typography>
           </div>
 
@@ -169,7 +165,7 @@ export default function ResetPasswordPage() {
                 htmlFor="newPassword"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Nouveau mot de passe
+                New password
               </label>
               <input
                 id="newPassword"
@@ -181,7 +177,7 @@ export default function ResetPasswordPage() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                placeholder="Votre nouveau mot de passe"
+                placeholder="Your new password"
               />
             </div>
 
@@ -191,7 +187,7 @@ export default function ResetPasswordPage() {
                 htmlFor="confirmPassword"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Confirmer le mot de passe
+                Confirm password
               </label>
               <input
                 id="confirmPassword"
@@ -202,7 +198,7 @@ export default function ResetPasswordPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                placeholder="Confirmez votre nouveau mot de passe"
+                placeholder="Confirm your new password"
               />
             </div>
 
@@ -229,10 +225,10 @@ export default function ResetPasswordPage() {
               {isLoading ? (
                 <>
                   <Spinner size="small" />
-                  Réinitialisation en cours...
+                  Resetting...
                 </>
               ) : (
-                "Réinitialiser le mot de passe"
+                "Reset password"
               )}
             </Button>
           </form>
@@ -240,12 +236,12 @@ export default function ResetPasswordPage() {
           {/* Section des liens additionnels */}
           <div className="mt-6 text-center">
             <Typography variant="body-base" theme="gray">
-              Vous vous souvenez de votre mot de passe ?{" "}
+              Remember your password?{" "}
               <a
                 href="/login"
                 className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
               >
-                Se connecter
+                Log in
               </a>
             </Typography>
           </div>

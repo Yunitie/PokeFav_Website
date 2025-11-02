@@ -41,11 +41,11 @@ export default function ForgotPasswordView({
             </div>
             {/* Titre principal de la page */}
             <Typography variant="h2" component="h1" className="mb-2">
-              Mot de passe oublié
+              Forgot password
             </Typography>
             {/* Sous-titre descriptif */}
             <Typography variant="body-sm" theme="gray">
-              Entrez votre email pour recevoir un lien de récupération
+              Enter your email to receive a recovery link
             </Typography>
           </div>
 
@@ -57,7 +57,7 @@ export default function ForgotPasswordView({
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Adresse email
+                Email address
               </label>
               <input
                 id="email"
@@ -68,7 +68,7 @@ export default function ForgotPasswordView({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                placeholder="votre@email.com"
+                placeholder="your@email.com"
               />
             </div>
 
@@ -95,10 +95,10 @@ export default function ForgotPasswordView({
               {isLoading ? (
                 <>
                   <Spinner size="small" />
-                  Envoi en cours...
+                  Sending...
                 </>
               ) : (
-                "Envoyer le lien de récupération"
+                "Send recovery link"
               )}
             </Button>
           </form>
@@ -108,24 +108,24 @@ export default function ForgotPasswordView({
             {/* Lien de retour vers la connexion */}
             <div>
               <Typography variant="body-base" theme="gray">
-                Vous vous souvenez de votre mot de passe ?{" "}
+                Remember your password?{" "}
                 <a
                   href="/login"
                   className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
                 >
-                  Se connecter
+                  Log in
                 </a>
               </Typography>
             </div>
             {/* Lien vers la page d'inscription */}
             <div>
               <Typography variant="body-base" theme="gray">
-                Pas encore de compte ?{" "}
+                Don't have an account yet?{" "}
                 <a
                   href="/login/register"
                   className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
                 >
-                  Créer un compte
+                  Create an account
                 </a>
               </Typography>
             </div>

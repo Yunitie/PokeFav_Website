@@ -115,10 +115,9 @@ export default function PokemonChoiceView({
         {!isUserLoggedIn && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
             <Typography variant="body-base" className="text-yellow-800">
-              ⚠️ Vous devez être connecté pour voter et sauvegarder vos
-              préférences.
+              ⚠️ You must be logged in to vote and save your preferences.
               <a href="/login" className="text-primary hover:underline ml-2">
-                Se connecter
+                Log in
               </a>
             </Typography>
           </div>
