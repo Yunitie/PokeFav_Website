@@ -13,7 +13,7 @@ const Layout = ({ children, withSideBar }: Props) => {
   let view: React.ReactElement = <></>;
 
   view = (
-    <>
+    <div className="flex flex-col min-h-screen justify-between">
       <Navigation />
       {withSideBar ? (
         <Container className="mb-14">
@@ -26,7 +26,7 @@ const Layout = ({ children, withSideBar }: Props) => {
       )}
       <ScrollToTop />
       <Footer />
-    </>
+    </div>
   );
 
   return view;

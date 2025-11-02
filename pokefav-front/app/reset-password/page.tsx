@@ -35,7 +35,9 @@ export default function ResetPasswordPage() {
   // Vérification de la présence des paramètres requis
   useEffect(() => {
     if (!token || !email) {
-      setError("Lien de réinitialisation invalide. Veuillez utiliser le lien reçu par email.");
+      setError(
+        "Lien de réinitialisation invalide. Veuillez utiliser le lien reçu par email."
+      );
       setIsValidToken(false);
     } else {
       setIsValidToken(true);
@@ -66,17 +68,20 @@ export default function ResetPasswordPage() {
 
     try {
       // Appel API pour réinitialiser le mot de passe
-      const response = await fetch("http://localhost:3001/api/auth/reset-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          token,
-          newPassword,
-        }),
-      });
+      const response = await fetch(
+        "http://localhost:3001/api/auth/reset-password",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            token,
+            newPassword,
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -85,16 +90,22 @@ export default function ResetPasswordPage() {
         setSuccess(data.message || "Mot de passe réinitialisé avec succès !");
         // Redirection vers la page de connexion après 3 secondes
         setTimeout(() => {
-          router.push("/login?message=Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter.");
+          router.push(
+            "/login?message=Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter."
+          );
         }, 3000);
       } else {
         // Erreur retournée par l'API
-        setError(data.error || "Une erreur s'est produite lors de la réinitialisation.");
+        setError(
+          data.error || "Une erreur s'est produite lors de la réinitialisation."
+        );
       }
     } catch (error) {
       // Gestion des erreurs de réseau ou autres erreurs
       console.error("Erreur lors de l'appel API:", error);
-      setError("Impossible de contacter le serveur. Vérifiez votre connexion et réessayez.");
+      setError(
+        "Impossible de contacter le serveur. Vérifiez votre connexion et réessayez."
+      );
     } finally {
       // Désactivation de l'état de chargement dans tous les cas
       setIsLoading(false);
@@ -134,7 +145,6 @@ export default function ResetPasswordPage() {
       <Container className="max-w-md w-full">
         {/* Carte blanche contenant le formulaire avec ombre et coins arrondis */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          
           {/* Section d'en-tête avec logo et titre */}
           <div className="text-center mb-8">
             {/* Logo centré */}
@@ -153,7 +163,6 @@ export default function ResetPasswordPage() {
 
           {/* Formulaire de réinitialisation */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            
             {/* Champ nouveau mot de passe */}
             <div>
               <label

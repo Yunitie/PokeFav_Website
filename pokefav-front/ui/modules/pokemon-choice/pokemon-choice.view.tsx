@@ -17,6 +17,8 @@ interface PokemonChoiceViewProps {
   generationOptions: string[];
   onToggleGeneration: (generation: string) => void;
   onResetFilters: () => void;
+  isUserLoggedIn: boolean;
+  authLoading: boolean;
 }
 
 export default function PokemonChoiceView({
@@ -31,6 +33,8 @@ export default function PokemonChoiceView({
   generationOptions,
   onToggleGeneration,
   onResetFilters,
+  isUserLoggedIn,
+  authLoading,
 }: PokemonChoiceViewProps) {
   const firstPokemonRef = useRef<HTMLDivElement>(null);
   const [nameDisplayed, setNameDisplayed] = useState(true);
@@ -46,6 +50,18 @@ export default function PokemonChoiceView({
       });
     }
   }, [pokemons]);
+
+  // Affiche le spinner de chargement pour l'authentification
+  if (authLoading) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center min-h-screen">
+          <Spinner size="large" />
+        </div>
+      </Layout>
+    );
+  }
+
   // Affiche le spinner de chargement
   if (loading) {
     return (
@@ -95,6 +111,19 @@ export default function PokemonChoiceView({
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
+        {/* Message d'avertissement si pas connecté */}
+        {!isUserLoggedIn && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <Typography variant="body-base" className="text-yellow-800">
+              ⚠️ Vous devez être connecté pour voter et sauvegarder vos
+              préférences.
+              <a href="/login" className="text-primary hover:underline ml-2">
+                Se connecter
+              </a>
+            </Typography>
+          </div>
+        )}
+
         <div className="mx-auto text-center">
           <Typography variant="h1" className="mb-8">
             Choose your favorite

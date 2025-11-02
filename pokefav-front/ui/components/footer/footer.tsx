@@ -3,7 +3,7 @@ import { Typography } from "@/ui/design-system/typography/typography";
 
 const Footer = () => {
   return (
-    <footer className="border-t-2 border-gray-200 bg-white">
+    <footer className="border-t-2 border-gray-900 bg-landing-dark-purple">
       <Container className="py-4 flex flex-col md:flex-row md:items-center md:justify-between">
         <Typography variant="body-sm" theme="gray-500" className="text-center">
           This site is not affiliated, associated, authorized, endorsed by, or

@@ -1,6 +1,5 @@
 "use client";
 
-/* eslint-disable */
 import Logo from "@/ui/design-system/logo/logo";
 import Container from "../container/container";
 import { Typography } from "@/ui/design-system/typography/typography";
@@ -11,9 +10,11 @@ import { useAuth } from "@/context/AuthUserContext";
 import { useState } from "react";
 // import { AccountAvatarNavigationLink } from "./account-avatar-link";
 
-interface Props {}
+interface Props {
+  textColor?: "white" | "black";
+}
 
-const Navigation = ({}: Props) => {
+const Navigation = ({ textColor = "white" }: Props) => {
   const { authUser, logout, loading } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -60,8 +61,8 @@ const Navigation = ({}: Props) => {
           <Typography
             variant="caption3"
             component="span"
-            theme="primary"
-            weight="medium"
+            theme="primary-300"
+            weight="bold"
           >
             {authUser?.displayName || ""}
           </Typography>
@@ -84,8 +85,8 @@ const Navigation = ({}: Props) => {
   );
 
   return (
-    <div className="border-b-2 border-gray-400 relative">
-      <Container className="flex items-center justify-between py-1.5 gap-7">
+    <div className="border-b-2 border-gray-400 relative bg-gradient-to-r to-landing-purple to-60%">
+      <Container className="flex items-center justify-between py-1.5 gap-7 ">
         {/* Logo - always visible */}
         <Link href="/" onClick={closeMobileMenu}>
           <div className="flex items-center gap-2.5">
@@ -94,7 +95,7 @@ const Navigation = ({}: Props) => {
               <div className="text-gray font-extrabold text-[24px]">
                 PokeFav
               </div>
-              <Typography variant="caption4" theme="gray" component="span">
+              <Typography variant="caption4" theme="black" component="span">
                 Create and share your favorite Pokemon lists!
               </Typography>
             </div>
@@ -106,13 +107,14 @@ const Navigation = ({}: Props) => {
           <Typography
             variant="caption3"
             component="div"
+            theme={textColor}
             className="flex items-center gap-7"
           >
             {navigationLinks}
           </Typography>
           {/* Barre verticale si connecté */}
           {!loading && authUser && (
-            <div className="self-stretch w-px bg-gray-300" />
+            <div className="self-stretch w-px bg-gray-600" />
           )}
           {userSection}
         </div>
@@ -124,17 +126,17 @@ const Navigation = ({}: Props) => {
           aria-label="Menu"
         >
           <span
-            className={`block w-6 h-0.5 bg-gray-600 transition-all duration-300 ${
+            className={`block w-6 h-0.5 bg-gray-900 transition-all duration-300 ${
               isMobileMenuOpen ? "rotate-45 translate-y-1.5" : ""
             }`}
           />
           <span
-            className={`block w-6 h-0.5 bg-gray-600 transition-all duration-300 ${
+            className={`block w-6 h-0.5 bg-gray-900 transition-all duration-300 ${
               isMobileMenuOpen ? "opacity-0" : ""
             }`}
           />
           <span
-            className={`block w-6 h-0.5 bg-gray-600 transition-all duration-300 ${
+            className={`block w-6 h-0.5 bg-gray-900 transition-all duration-300 ${
               isMobileMenuOpen ? "-rotate-45 -translate-y-1.5" : ""
             }`}
           />
@@ -143,7 +145,7 @@ const Navigation = ({}: Props) => {
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b-2 border-gray-400 shadow-lg z-50">
+        <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b-2 border-gray-600 shadow-lg z-50">
           <div className="px-4 py-6 space-y-6">
             {/* Mobile Navigation Links */}
             <div className="space-y-4">

@@ -12,7 +12,7 @@ const iconMap = {
 };
 
 interface Props {
-  size?: "small" | "medium" | "large";
+  size?: "small" | "medium" | "large" | "xlarge";
   variant?:
     | "accent"
     | "secondary"
@@ -32,6 +32,7 @@ interface Props {
   action?: () => void; //donner une fonction
   type?: "button" | "submit";
   fullWith?: boolean;
+  fontWeight?: "normal" | "medium" | "semibold" | "bold" | "extrabold";
   className?: string;
 }
 
@@ -48,6 +49,7 @@ const Button = ({
   linkType = "internal",
   type = "button",
   fullWith = false,
+  fontWeight = "medium",
   action = () => {},
   className,
 }: Props) => {
@@ -96,9 +98,32 @@ const Button = ({
       break;
   }
 
+  // Définir le poids de la police selon la prop fontWeight
+  let fontWeightClass: string = "";
+  switch (fontWeight) {
+    case "normal":
+      fontWeightClass = "font-normal";
+      break;
+    case "medium":
+      fontWeightClass = "font-medium";
+      break;
+    case "semibold":
+      fontWeightClass = "font-semibold";
+      break;
+    case "bold":
+      fontWeightClass = "font-bold";
+      break;
+    case "extrabold":
+      fontWeightClass = "font-extrabold";
+      break;
+    default:
+      fontWeightClass = "font-medium";
+      break;
+  }
+
   switch (size) {
     case "small":
-      sizeStyles = `text-caption3 font-medium ${
+      sizeStyles = `text-caption3 ${fontWeightClass} ${
         variant === "ico"
           ? "flex items-center justify-center w-[40px] h-[40px]"
           : "px-[14px] py-[12px]"
@@ -106,7 +131,7 @@ const Button = ({
       icoSize = 18;
       break;
     case "medium": //Default
-      sizeStyles = `text-caption2 font-medium ${
+      sizeStyles = `text-caption2 ${fontWeightClass} ${
         variant === "ico"
           ? "flex items-center justify-center w-[50px] h-[50px]"
           : "px-[18px] py-[15px]"
@@ -114,12 +139,20 @@ const Button = ({
       icoSize = 20;
       break;
     case "large":
-      sizeStyles = `text-caption1 font-medium ${
+      sizeStyles = `text-caption1 ${fontWeightClass} ${
         variant === "ico"
           ? "flex items-center justify-center w-[60px] h-[60px]"
           : "px-[22px] py-[18px]"
       }`;
       icoSize = 24;
+      break;
+    case "xlarge":
+      sizeStyles = `text-2xl ${fontWeightClass} ${
+        variant === "ico"
+          ? "flex items-center justify-center w-[70px] h-[70px]"
+          : "px-[26px] py-[18px]"
+      }`;
+      icoSize = 28;
       break;
   }
 

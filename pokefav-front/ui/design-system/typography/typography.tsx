@@ -26,13 +26,17 @@ interface Props {
     | "gray"
     | "gray-600"
     | "gray-500"
+    | "gray-700"
+    | "gray-800"
     | "white"
     | "primary"
+    | "primary-300"
     | "secondary"
+    | "secondary-300"
     | "danger"
     | "success"
     | "warning";
-  weight?: "regular" | "medium";
+  weight?: "regular" | "medium" | "bold";
   className?: string;
   children: React.ReactNode;
 }
@@ -46,7 +50,8 @@ export const Typography = ({
   children,
 }: Props) => {
   let variantClasses: string = "",
-    colorClasses: string = "";
+    colorClasses: string = "",
+    weightClasses: string = "";
 
   // Définition des classes de taille selon la variante
   switch (variant) {
@@ -108,14 +113,26 @@ export const Typography = ({
     case "gray-500":
       colorClasses = "text-gray-500";
       break;
+    case "gray-700":
+      colorClasses = "text-gray-700";
+      break;
+    case "gray-800":
+      colorClasses = "text-gray-800";
+      break;
     case "white":
       colorClasses = "text-white";
       break;
     case "primary":
       colorClasses = "text-primary";
       break;
+    case "primary-300":
+      colorClasses = "text-primary-300";
+      break;
     case "secondary":
       colorClasses = "text-secondary";
+      break;
+    case "secondary-300":
+      colorClasses = "text-secondary-300";
       break;
     case "danger":
       colorClasses = "text-alert-danger";
@@ -128,14 +145,22 @@ export const Typography = ({
       break;
   }
 
+  // Définition des classes de poids selon le weight
+  switch (weight) {
+    case "medium":
+      weightClasses = "font-medium";
+      break;
+    case "regular":
+      weightClasses = "font-normal";
+      break;
+    case "bold":
+      weightClasses = "font-bold";
+      break;
+  }
+
   return (
     <Component
-      className={clsx(
-        variantClasses,
-        colorClasses,
-        weight === "medium" && "font-medium",
-        className
-      )}
+      className={clsx(variantClasses, colorClasses, weightClasses, className)}
     >
       {children}
     </Component>

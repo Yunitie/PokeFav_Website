@@ -6,6 +6,7 @@ import { PokemonRandomService } from "@/lib/pokemon-random";
 import PokemonChoiceView from "./pokemon-choice.view";
 import { useHttp } from "@/context/HttpClientContext";
 import { usePokemonChoice } from "@/hooks/use-pokemon-choice";
+import { useAuth } from "@/context/AuthUserContext";
 
 export default function PokemonChoiceContainer() {
   const http = useHttp();
@@ -13,6 +14,7 @@ export default function PokemonChoiceContainer() {
   const [count, setCount] = useState<number>(3);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { authUser, loading: authLoading } = useAuth();
   const {
     selectedGenerations,
     generationOptions,
@@ -100,6 +102,8 @@ export default function PokemonChoiceContainer() {
       generationOptions={generationOptions}
       onToggleGeneration={toggleGeneration}
       onResetFilters={resetFilters}
+      isUserLoggedIn={authUser !== null}
+      authLoading={authLoading}
     />
   );
 }
