@@ -58,9 +58,14 @@ export function ProfileView(props: ProfileViewProps) {
 
       {/* Danger zone */}
       <section className="bg-white rounded-xl shadow-sm border border-red-200/60 p-6 space-y-4">
-        <Typography variant="h4" className="text-red-600">
-          Danger zone
-        </Typography>
+        <div className="flex items-center gap-2">
+          <span className="text-red-600 text-2xl md:text-3xl" aria-hidden>
+            ⚠️
+          </span>
+          <Typography variant="h4" className="text-red-600">
+            Delete your account
+          </Typography>
+        </div>
         <Typography variant="body-base">
           Deleting your account is irreversible. Type your exact display name to
           confirm.

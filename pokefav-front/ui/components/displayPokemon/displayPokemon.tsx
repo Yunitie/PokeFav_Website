@@ -23,10 +23,14 @@ export default function DisplayPokemon({
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   return (
-    <button type="button" onClick={() => onClick?.(pokemon)}>
-      <div className="bg-white rounded-lg shadow-lg p-2 w-full">
+    <button
+      type="button"
+      onClick={() => onClick?.(pokemon)}
+      className="h-full w-full group"
+    >
+      <div className="bg-white rounded-lg shadow-lg p-2 w-full h-full transition-all duration-300 hover:shadow-xl hover:scale-[1.02] flex flex-col">
         {/* Image du Pokémon */}
-        <div className="mb-2 h-full flex items-center justify-center relative">
+        <div className="mb-2 flex-1 flex items-center justify-center relative min-h-[120px]">
           {!isImageLoaded && (
             <div className="absolute inset-0 flex items-center justify-center">
               <Spinner size="large" />
@@ -37,9 +41,9 @@ export default function DisplayPokemon({
             alt={pokemon.name}
             width={200}
             height={200}
-            className={`mx-auto rounded-lg object-contain max-h-full max-w-full transition-opacity duration-300 ${
+            className={`mx-auto rounded-lg object-contain max-h-full max-w-full transition-all duration-500 ${
               isImageLoaded ? "opacity-100" : "opacity-0"
-            }`}
+            } group-hover:scale-110`}
             onLoad={() => setIsImageLoaded(true)}
             onError={() => setIsImageLoaded(true)}
           />

@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthUserContext";
 import { useHttp } from "@/context/HttpClientContext";
+import toast from "react-hot-toast";
 
 export type ProfileViewProps = {
   displayName: string;
@@ -34,11 +35,14 @@ export function ProfileContainer() {
     try {
       await http.post("/api/auth/forgot-password", { email });
       setSuccessMessage("A password reset email has been sent.");
+      toast.success("Password reset email sent", { duration: 4000 });
     } catch (err: unknown) {
       if (err instanceof Error) {
         setErrorMessage(err.message ?? "Error sending email.");
+        toast.error(err.message ?? "Error sending email");
       } else {
         setErrorMessage("Error sending email.");
+        toast.error("Error sending email");
       }
     } finally {
       setLoadingReset(false);
@@ -61,6 +65,7 @@ export function ProfileContainer() {
       try {
         await http.delete("/api/profile");
         setSuccessMessage("Account deleted. Logging out...");
+        toast.success("Account deleted", { duration: 4000 });
         await logout();
         if (typeof window !== "undefined") {
           window.location.href = "/";
@@ -68,8 +73,10 @@ export function ProfileContainer() {
       } catch (err: unknown) {
         if (err instanceof Error) {
           setErrorMessage(err.message ?? "Error deleting account.");
+          toast.error(err.message ?? "Error deleting account");
         } else {
           setErrorMessage("Error deleting account.");
+          toast.error("Error deleting account");
         }
       } finally {
         setLoadingDelete(false);

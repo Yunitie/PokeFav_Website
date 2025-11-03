@@ -35,9 +35,29 @@ export default function MyRankingView({ ranked }: MyRankingViewProps) {
     info: true,
   });
 
+  // Calcul du nombre de Pokémon affichés
+  const displayedCount = orderedRanks.reduce(
+    (total, rank) => total + groups[rank].length,
+    0
+  );
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 flex flex-col gap-6">
+        {/* Informations */}
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <Typography variant="body-lg" className="text-gray-700 font-medium">
+            {displayedCount}{" "}
+            {displayedCount > 1 ? "Pokemon displayed" : "Pokemon displayed"}
+            {ranked.length !== displayedCount && (
+              <span className="text-gray-500 font-normal">
+                {" "}
+                out of {ranked.length}
+              </span>
+            )}
+          </Typography>
+        </div>
+
         {/* Filtres */}
         <div className="flex flex-wrap items-center gap-6">
           <input

@@ -7,11 +7,12 @@ import PokemonChoiceView from "./pokemon-choice.view";
 import { useHttp } from "@/context/HttpClientContext";
 import { usePokemonChoice } from "@/hooks/use-pokemon-choice";
 import { useAuth } from "@/context/AuthUserContext";
+import toast from "react-hot-toast";
 
 export default function PokemonChoiceContainer() {
   const http = useHttp();
   const [pokemons, setPokemons] = useState<Pokemon[]>([]);
-  const [count, setCount] = useState<number>(3);
+  const [count, setCount] = useState<number>(10);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { authUser, loading: authLoading } = useAuth();
@@ -35,8 +36,12 @@ export default function PokemonChoiceContainer() {
         );
         if (!cancelled) setPokemons(randomPokemons);
       } catch (err) {
-        if (!cancelled)
-          setError(err instanceof Error ? err.message : "Erreur inconnue");
+        if (!cancelled) {
+          const message =
+            err instanceof Error ? err.message : "Erreur inconnue";
+          setError(message);
+          toast.error(message);
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -62,7 +67,9 @@ export default function PokemonChoiceContainer() {
         );
         setPokemons(randomPokemons);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Erreur inconnue");
+        const message = err instanceof Error ? err.message : "Erreur inconnue";
+        setError(message);
+        toast.error(message);
       } finally {
         setLoading(false);
       }
@@ -84,8 +91,11 @@ export default function PokemonChoiceContainer() {
 
       // Rafraîchir la liste après un vote réussi
       handleNewPokemons();
+      toast.success("Vote recorded", { duration: 1000 });
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Unknown error");
+      const message = e instanceof Error ? e.message : "Unknown error";
+      setError(message);
+      toast.error(message);
     }
   };
 

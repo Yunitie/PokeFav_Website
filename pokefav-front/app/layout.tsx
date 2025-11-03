@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "../styles/globals.css";
 import { AuthUserProvider } from "../context/AuthUserContext";
 import { HttpClientProvider } from "@/context/HttpClientContext";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "PokeFav - Your favorite Pokemon",
@@ -35,7 +36,10 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased bg-white">
         <AuthUserProvider>
-          <HttpClientProvider>{children}</HttpClientProvider>
+          <HttpClientProvider>
+            {children}
+            <Toaster position="bottom-right" />
+          </HttpClientProvider>
         </AuthUserProvider>
       </body>
     </html>

@@ -124,7 +124,11 @@ export default function PokemonChoiceView({
         )}
 
         <div className="mx-auto text-center">
-          <Typography variant="h1" className="mb-8">
+          <Typography
+            variant="h1"
+            weight="medium"
+            className="mb-8 font-sans-serif"
+          >
             Choose your favorite
           </Typography>
 

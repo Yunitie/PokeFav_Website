@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthUserContext";
 import { useRouter } from "next/navigation";
 import { Pokemon } from "@/types/pokemon";
 import MyRankingView from "./my-ranking.view";
+import toast from "react-hot-toast";
 
 type RankedPokemonDTO = { score: number; pokemon: Pokemon };
 
@@ -32,7 +33,9 @@ export default function MyRankingContainer() {
           const data = await http.get<RankedPokemonDTO[]>("/api/pokemon/rank");
           const sorted = [...data].sort((a, b) => b.score - a.score);
           if (mounted) setRanked(sorted);
-        } catch {}
+        } catch {
+          toast.error("Failed to load ranking");
+        }
       })();
     }
     return () => {
