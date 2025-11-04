@@ -42,6 +42,7 @@ const profileRouter = require("./api/profile/route");
 const pokemonByIdRouter = require("./api/pokemon/[id]/route");
 const pokemonRandomRouter = require("./api/pokemon/random/route");
 const pokemonRankRouter = require("./api/pokemon/rank/route");
+const shareUserRouter = require("./api/share/user/route");
 
 // Montage des routes
 app.use("/api/auth/login", authLoginRouter);
@@ -53,9 +54,9 @@ app.use("/api/auth/reset-password", authResetPasswordRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/profile", profileRouter);
 app.use("/api/pokemon/random", pokemonRandomRouter);
-// Routes spécifiques avant la route générique "/api/pokemon/:id"
 app.use("/api/pokemon/rank", pokemonRankRouter);
 app.use("/api/pokemon", pokemonByIdRouter);
+app.use("/api/share/user", shareUserRouter);
 
 // Middleware d'erreur basique
 app.use((err, req, res, next) => {

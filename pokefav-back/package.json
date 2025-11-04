@@ -7,7 +7,8 @@
     "start": "node index.js",
     "test-swagger": "node utils/swagger/test-swagger.js",
     "prisma:generate": "prisma generate --schema=prisma/schema.prisma",
-    "import:tyradex": "node scripts/import-tyradex.js"
+    "import:tyradex": "node scripts/import-tyradex.js",
+    "prisma": "prisma"
   },
   "dependencies": {
     "@prisma/client": "^6.13.0",

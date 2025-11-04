@@ -38,7 +38,18 @@ export default function RootLayout({
         <AuthUserProvider>
           <HttpClientProvider>
             {children}
-            <Toaster position="bottom-right" />
+            <Toaster
+              position="bottom-right"
+              toastOptions={{
+                style: {
+                  backgroundColor: "#4f378a",
+                  color: "#f4f4f5",
+                  borderRadius: "0.5rem",
+                  padding: "0.5rem",
+                  fontWeight: "500",
+                },
+              }}
+            />
           </HttpClientProvider>
         </AuthUserProvider>
       </body>

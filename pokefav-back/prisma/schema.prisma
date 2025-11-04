@@ -18,6 +18,7 @@ model User {
   isVerified               Boolean       @default(false)
   resetPasswordToken       String? // Token de réinitialisation du mot de passe
   resetPasswordTokenExpiry DateTime? // Expiration du token
+  publicId                 String        @unique @default(uuid())
   pokemonRank              PokemonRank[]
 }
 
