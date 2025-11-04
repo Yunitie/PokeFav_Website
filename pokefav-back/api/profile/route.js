@@ -81,6 +81,7 @@ router.get("/", async (req, res) => {
       id: user.id,
       email: user.email,
       displayName: user.displayName,
+      publicId: user.publicId,
       avatar: user.avatar,
       isVerified: user.isVerified,
     });

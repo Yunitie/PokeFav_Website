@@ -9,12 +9,14 @@ import MyRankingView from "./my-ranking.view";
 import toast from "react-hot-toast";
 
 type RankedPokemonDTO = { score: number; pokemon: Pokemon };
+type ProfileDTO = { id: number; email: string; displayName?: string | null; avatar?: string | null; isVerified: boolean; publicId: string };
 
 export default function MyRankingContainer() {
   const http = useHttp();
   const { authUser, loading } = useAuth();
   const router = useRouter();
   const [ranked, setRanked] = useState<RankedPokemonDTO[]>([]);
+  const [publicUrl, setPublicUrl] = useState<string | null>(null);
 
   // Redirige vers /login si l'utilisateur n'est pas connecté
   useEffect(() => {
@@ -33,6 +35,10 @@ export default function MyRankingContainer() {
           const data = await http.get<RankedPokemonDTO[]>("/api/pokemon/rank");
           const sorted = [...data].sort((a, b) => b.score - a.score);
           if (mounted) setRanked(sorted);
+          // Fetch profile to get publicId and build public URL
+          const profile = await http.get<ProfileDTO>("/api/profile");
+          const origin = typeof window !== "undefined" ? window.location.origin : "";
+          if (mounted) setPublicUrl(origin ? `${origin}/r/${profile.publicId}` : `/r/${profile.publicId}`);
         } catch {
           toast.error("Failed to load ranking");
         }
@@ -43,5 +49,5 @@ export default function MyRankingContainer() {
     };
   }, [http, loading, authUser]);
 
-  return <MyRankingView ranked={ranked} />;
+  return <MyRankingView ranked={ranked} publicUrl={publicUrl} />;
 }

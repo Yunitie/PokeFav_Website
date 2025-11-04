@@ -8,19 +8,22 @@ import DisplayOptionsToggle from "@/ui/components/displayPokemon/display-options
 import { useMyRanking } from "@/hooks/use-my-ranking";
 import { useState } from "react";
 import { translateType } from "@/lib/pokemon-types";
-import toast from "react-hot-toast";
 
 type Ranked = { score: number; pokemon: Pokemon }[];
 
-interface MyRankingViewProps {
+interface PublicRankingViewProps {
+  displayName: string | null;
   ranked: Ranked;
-  publicUrl: string | null;
+  loading: boolean;
+  error: string | null;
 }
 
-export default function MyRankingView({
+export default function PublicRankingView({
+  displayName,
   ranked,
-  publicUrl,
-}: MyRankingViewProps) {
+  loading,
+  error,
+}: PublicRankingViewProps) {
   const {
     groups,
     orderedRanks,
@@ -39,9 +42,7 @@ export default function MyRankingView({
     types: true,
     info: true,
   });
-  const [copied, setCopied] = useState(false);
 
-  // Calcul du nombre de Pokémon affichés
   const displayedCount = orderedRanks.reduce(
     (total, rank) => total + groups[rank].length,
     0
@@ -49,59 +50,31 @@ export default function MyRankingView({
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8 flex-1 flex flex-col gap-6">
-        {/* Informations */}
+      <div className="container mx-auto px-4 py-8 flex flex-1 flex-col gap-6">
         <div className="flex items-center justify-between flex-wrap gap-4">
-          <Typography variant="body-lg" className="text-gray-700 font-medium">
-            {displayedCount}{" "}
-            {displayedCount > 1 ? "Pokemon displayed" : "Pokemon displayed"}
-            {ranked.length !== displayedCount && (
-              <span className="text-gray-500 font-normal">
-                {" "}
-                out of {ranked.length}
-              </span>
-            )}
-          </Typography>
-          {publicUrl && (
-            <div className="flex items-center gap-2">
-              <Typography variant="body-base" className="text-gray-700">
-                Share your ranking
-              </Typography>
-              <input
-                type="text"
-                readOnly
-                value={publicUrl}
-                className="border rounded px-3 py-1 w-64 md:w-96"
-                onFocus={(e) => e.currentTarget.select()}
-              />
-              <button
-                type="button"
-                className={`px-3 py-1 border rounded ${
-                  copied ? "animate-pulse" : ""
-                }`}
-                onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(publicUrl);
-                    setCopied(true);
-                    toast.success("Copied", { duration: 1200 });
-                    setTimeout(() => setCopied(false), 600);
-                  } catch {
-                    // fallback: select input for manual copy
-                  }
-                }}
-              >
-                {copied ? "Copied" : "Copy"}
-              </button>
-            </div>
-          )}
+          <div className="flex flex-col">
+            <Typography component="h2" weight="bold" className="text-gray-900">
+              {displayName ? `${displayName}'s ranking` : "Public ranking"}
+            </Typography>
+            <Typography variant="body-base" className="text-gray-600">
+              {loading
+                ? "Loading..."
+                : error
+                ? error
+                : `${displayedCount} Pokemon displayed${
+                    ranked.length !== displayedCount
+                      ? ` out of ${ranked.length}`
+                      : ""
+                  }`}
+            </Typography>
+          </div>
         </div>
 
-        {/* Filtres */}
+        {/* Filtres (read-only des données, mais filtres actifs) */}
         {ranked.length === 0 ? (
           <div className="w-full py-10 text-center">
             <Typography variant="body-lg" className="text-gray-600">
-              You haven&apos;t ranked any Pokemon yet. Start voting to build
-              your ranking.
+              This user has not ranked any Pokemon yet.
             </Typography>
           </div>
         ) : (
@@ -112,6 +85,7 @@ export default function MyRankingView({
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               className="border rounded px-3 py-1"
+              disabled={loading}
             />
             <div className="flex flex-wrap items-center gap-1">
               <Typography variant="body-base">Generations :</Typography>
@@ -127,6 +101,7 @@ export default function MyRankingView({
                         ? "bg-primary text-white border-primary"
                         : "bg-white text-gray-800"
                     }`}
+                    disabled={loading}
                   >
                     {gen}
                   </button>
@@ -137,6 +112,7 @@ export default function MyRankingView({
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
               className="border rounded px-2 py-1"
+              disabled={loading}
             >
               <option value="">All types</option>
               {typeOptions.map((type) => (
@@ -145,18 +121,21 @@ export default function MyRankingView({
                 </option>
               ))}
             </select>
-            {/* Toggles d'affichage */}
+            {/* Display options toggles */}
             <DisplayOptionsToggle value={display} onChange={setDisplay} />
             {(selectedGenerations.length > 0 || selectedType || searchText) && (
               <button
                 onClick={resetFilters}
                 className="px-3 py-1 border rounded"
+                disabled={loading}
               >
                 Reset
               </button>
             )}
           </div>
         )}
+
+        {/* Grille */}
         {ranked.length > 0 &&
           orderedRanks.map((rank) => (
             <div key={rank} className="flex flex-col">
