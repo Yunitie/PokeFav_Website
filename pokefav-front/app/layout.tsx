@@ -3,6 +3,8 @@ import "../styles/globals.css";
 import { AuthUserProvider } from "../context/AuthUserContext";
 import { HttpClientProvider } from "@/context/HttpClientContext";
 import { Toaster } from "react-hot-toast";
+import Script from "next/script";
+import { themeInitScript } from "@/ui/components/theme-toggle/theme-init-script";
 
 export const metadata: Metadata = {
   title: "PokeFav - Your favorite Pokemon",
@@ -34,6 +36,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <meta name="color-scheme" content="light dark" />
+        <Script id="theme-init" strategy="beforeInteractive">
+          {themeInitScript}
+        </Script>
+      </head>
       <body className="antialiased bg-white">
         <AuthUserProvider>
           <HttpClientProvider>

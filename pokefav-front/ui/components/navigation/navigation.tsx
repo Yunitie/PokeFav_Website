@@ -9,6 +9,7 @@ import ActiveLink from "./active-link";
 import { useAuth } from "@/context/AuthUserContext";
 import { useState } from "react";
 // import { AccountAvatarNavigationLink } from "./account-avatar-link";
+import { ThemeToggle } from "@theme-toggle";
 
 interface Props {
   textColor?: "white" | "black";
@@ -112,6 +113,7 @@ const Navigation = ({ textColor = "white" }: Props) => {
           >
             {navigationLinks}
           </Typography>
+          <ThemeToggle />
           {/* Barre verticale si connecté */}
           {!loading && authUser && (
             <div className="self-stretch w-px bg-gray-600" />

@@ -5,7 +5,7 @@
 
 import clsx from "clsx"; // Permet de conditionner dynamiquement des classes CSS
 import Link from "next/link"; // Composant Link de Next.js pour la navigation côté client
-import { useRouter, usePathname } from "next/navigation"; // Hook pour accéder à l'objet router de Next.js
+import { usePathname } from "next/navigation"; // Hook pour accéder à l'objet router de Next.js
 import { useMemo } from "react"; // Hook pour mémoriser une valeur calculée
 
 // Définition des props attendues par le composant
@@ -27,7 +27,10 @@ const ActiveLink = ({ href, children }: Props) => {
 
   // Retourne un composant Link avec une classe CSS conditionnelle si actif
   return (
-    <Link href={href} className={clsx(isActive && "text-primary font-medium")}>
+    <Link
+      href={href}
+      className={clsx(isActive && "text-primary-300  font-medium")}
+    >
       {children}
     </Link>
   );

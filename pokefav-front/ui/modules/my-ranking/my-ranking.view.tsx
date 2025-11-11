@@ -41,6 +41,36 @@ export default function MyRankingView({
   });
   const [copied, setCopied] = useState(false);
 
+  // Helpers pour adapter l'affichage des rangs sur une grille de 6 colonnes
+  const getColSpanClass = (count: number) => {
+    const n = Math.min(Math.max(count, 1), 6);
+    switch (n) {
+      case 1:
+        return "xl:col-span-1";
+      case 2:
+        return "xl:col-span-2";
+      case 3:
+        return "xl:col-span-3";
+      case 4:
+        return "xl:col-span-4";
+      case 5:
+        return "xl:col-span-5";
+      default:
+        return "xl:col-span-6";
+    }
+  };
+
+  const getInnerGridColsClass = (count: number) => {
+    const n = Math.min(Math.max(count, 1), 6);
+    const classes = ["grid-cols-1"];
+    if (n >= 2) classes.push("sm:grid-cols-2");
+    if (n >= 3) classes.push("md:grid-cols-3");
+    if (n >= 4) classes.push("lg:grid-cols-4");
+    if (n >= 5) classes.push("xl:grid-cols-5");
+    if (n >= 6) classes.push("xl:grid-cols-6");
+    return classes.join(" ");
+  };
+
   // Calcul du nombre de Pokémon affichés
   const displayedCount = orderedRanks.reduce(
     (total, rank) => total + groups[rank].length,
@@ -63,35 +93,37 @@ export default function MyRankingView({
             )}
           </Typography>
           {publicUrl && (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-left sm:items-center sm:gap-2">
               <Typography variant="body-base" className="text-gray-700">
                 Share your ranking
               </Typography>
-              <input
-                type="text"
-                readOnly
-                value={publicUrl}
-                className="border rounded px-3 py-1 w-64 md:w-96"
-                onFocus={(e) => e.currentTarget.select()}
-              />
-              <button
-                type="button"
-                className={`px-3 py-1 border rounded ${
-                  copied ? "animate-pulse" : ""
-                }`}
-                onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(publicUrl);
-                    setCopied(true);
-                    toast.success("Copied", { duration: 1200 });
-                    setTimeout(() => setCopied(false), 600);
-                  } catch {
-                    // fallback: select input for manual copy
-                  }
-                }}
-              >
-                {copied ? "Copied" : "Copy"}
-              </button>
+              <div className="flex items-center">
+                <input
+                  type="text"
+                  readOnly
+                  value={publicUrl}
+                  className="border border-secondary-400/70 rounded-l px-3 py-1 w-64 md:w-96"
+                  onFocus={(e) => e.currentTarget.select()}
+                />
+                <button
+                  type="button"
+                  className={`px-3 py-1 border border-secondary-400/70 bg-secondary-400/70 rounded-r ${
+                    copied ? "animate-pulse" : ""
+                  }`}
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(publicUrl);
+                      setCopied(true);
+                      toast.success("Copied", { duration: 1200 });
+                      setTimeout(() => setCopied(false), 600);
+                    } catch {
+                      // fallback: select input for manual copy
+                    }
+                  }}
+                >
+                  {copied ? "Copied" : "Copy"}
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -157,27 +189,42 @@ export default function MyRankingView({
             )}
           </div>
         )}
-        {ranked.length > 0 &&
-          orderedRanks.map((rank) => (
-            <div key={rank} className="flex flex-col">
-              <div className="text-xl font-semibold mb-3">#{rank}</div>
-              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 items-stretch">
-                {groups[rank].map(({ pokemon, score }) => (
-                  <div
-                    key={`${pokemon.id}-${score}`}
-                    className="min-w-0 h-full"
-                  >
-                    <DisplayPokemon
-                      pokemon={pokemon}
-                      nameDisplayed={display.name}
-                      typesDisplayed={display.types}
-                      infoDisplayed={display.info}
-                    />
+        {ranked.length > 0 && (
+          <div className="grid grid-cols-1 xl:grid-cols-6 gap-3">
+            {orderedRanks.map((rank) => {
+              const count = groups[rank].length;
+              return (
+                <div
+                  key={rank}
+                  className={`flex flex-col ${getColSpanClass(count)}`}
+                >
+                  <div className="text-3xl text-center bg-secondary-300 bg-gradient-to-r to-landing-purple to-140% text-landing-dark-purple drop-shadow-lg font-bold mb-3">
+                    #{rank}
                   </div>
-                ))}
-              </div>
-            </div>
-          ))}
+                  <div
+                    className={`grid gap-1 items-stretch ${getInnerGridColsClass(
+                      count
+                    )}`}
+                  >
+                    {groups[rank].map(({ pokemon, score }) => (
+                      <div
+                        key={`${pokemon.id}-${score}`}
+                        className="min-w-0 h-full"
+                      >
+                        <DisplayPokemon
+                          pokemon={pokemon}
+                          nameDisplayed={display.name}
+                          typesDisplayed={display.types}
+                          infoDisplayed={display.info}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </Layout>
   );
