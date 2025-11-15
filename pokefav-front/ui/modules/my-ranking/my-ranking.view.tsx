@@ -82,11 +82,14 @@ export default function MyRankingView({
       <div className="container mx-auto px-4 py-8 flex-1 flex flex-col gap-6">
         {/* Informations */}
         <div className="flex items-center justify-between flex-wrap gap-4">
-          <Typography variant="body-lg" className="text-gray-700 font-medium">
+          <Typography
+            variant="body-lg"
+            className="text-gray-700 dark:text-gray-400 font-medium"
+          >
             {displayedCount}{" "}
             {displayedCount > 1 ? "Pokemon displayed" : "Pokemon displayed"}
             {ranked.length !== displayedCount && (
-              <span className="text-gray-500 font-normal">
+              <span className="text-gray-500 dark:text-gray-400 font-normal">
                 {" "}
                 out of {ranked.length}
               </span>
@@ -94,7 +97,10 @@ export default function MyRankingView({
           </Typography>
           {publicUrl && (
             <div className="flex flex-col sm:flex-row items-left sm:items-center sm:gap-2">
-              <Typography variant="body-base" className="text-gray-700">
+              <Typography
+                variant="body-base"
+                className="text-gray-700 dark:text-gray-300"
+              >
                 Share your ranking
               </Typography>
               <div className="flex items-center">
@@ -102,7 +108,7 @@ export default function MyRankingView({
                   type="text"
                   readOnly
                   value={publicUrl}
-                  className="border border-secondary-400/70 rounded-l px-3 py-1 w-64 md:w-96"
+                  className="border border-secondary-400/70 text-gray-700 dark:text-gray-300 rounded-l px-3 py-1 w-64 md:w-96"
                   onFocus={(e) => e.currentTarget.select()}
                 />
                 <button
@@ -131,7 +137,10 @@ export default function MyRankingView({
         {/* Filtres */}
         {ranked.length === 0 ? (
           <div className="w-full py-10 text-center">
-            <Typography variant="body-lg" className="text-gray-600">
+            <Typography
+              variant="body-lg"
+              className="text-gray-600 dark:text-gray-400"
+            >
               You haven&apos;t ranked any Pokemon yet. Start voting to build
               your ranking.
             </Typography>
@@ -143,10 +152,15 @@ export default function MyRankingView({
               placeholder="Search Pokemon..."
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              className="border rounded px-3 py-1"
+              className="border rounded px-3 py-1 text-gray-700 dark:text-gray-300"
             />
             <div className="flex flex-wrap items-center gap-1">
-              <Typography variant="body-base">Generations :</Typography>
+              <Typography
+                variant="body-base"
+                className="text-gray-700 dark:text-gray-300"
+              >
+                Generations :
+              </Typography>
               {generationOptions.map((gen) => {
                 const active = selectedGenerations.includes(gen);
                 return (
@@ -168,11 +182,20 @@ export default function MyRankingView({
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="border rounded px-2 py-1"
+              className="border rounded px-2 py-1 text-gray-700 dark:text-gray-300"
             >
-              <option value="">All types</option>
+              <option
+                value=""
+                className="text-gray-700 dark:text-gray-300 bg-white dark:bg-[#2B2B2B]"
+              >
+                All types
+              </option>
               {typeOptions.map((type) => (
-                <option key={type} value={type}>
+                <option
+                  key={type}
+                  value={type}
+                  className="text-gray-700 dark:text-gray-300 bg-white dark:bg-[#2B2B2B]"
+                >
                   {translateType(type)}
                 </option>
               ))}

@@ -1,9 +1,12 @@
 interface Props {
   size?: "very-small" | "small" | "medium" | "large";
+  color?: "white" | "black";
+  className?: string;
 }
 
-const Logo = ({ size = "medium" }: Props) => {
+const Logo = ({ size = "medium", color = "black", className = "" }: Props) => {
   let sizeLogo: number;
+  let colorLogo: string;
 
   switch (size) {
     case "very-small":
@@ -23,6 +26,15 @@ const Logo = ({ size = "medium" }: Props) => {
       break;
   }
 
+  switch (color) {
+    case "white":
+      colorLogo = "#F4EAFF";
+      break;
+    case "black":
+      colorLogo = "#000000";
+      break;
+  }
+
   return (
     <div>
       <svg
@@ -33,8 +45,9 @@ const Logo = ({ size = "medium" }: Props) => {
       >
         <g
           transform="translate(0.000000,1024.000000) scale(0.100000,-0.100000)"
-          fill="#000000"
+          fill={colorLogo}
           stroke="none"
+          className={className}
         >
           <path
             d="M5120 9124 c-341 -41 -626 -145 -891 -323 -327 -220 -537 -446 -944

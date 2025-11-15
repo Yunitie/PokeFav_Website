@@ -13,7 +13,7 @@ const Layout = ({ children, withSideBar }: Props) => {
   let view: React.ReactElement = <></>;
 
   view = (
-    <div className="flex flex-col min-h-screen justify-between">
+    <div className="flex flex-col min-h-screen justify-between bg-white dark:bg-[#171717]">
       <Navigation />
       {withSideBar ? (
         <Container className="mb-14">

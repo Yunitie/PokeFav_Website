@@ -28,7 +28,7 @@ export default function DisplayPokemon({
       onClick={() => onClick?.(pokemon)}
       className="h-full w-full group"
     >
-      <div className="bg-white rounded-lg shadow-lg p-2 w-full h-full transition-all duration-300 hover:shadow-xl hover:scale-[1.02] flex flex-col">
+      <div className="bg-white dark:bg-[#2B2B2B] rounded-lg shadow-lg p-2 w-full h-full transition-all duration-300 hover:shadow-xl hover:scale-[1.02] flex flex-col">
         {/* Image du Pokémon */}
         <div className="mb-2 flex-1 flex items-center justify-center relative min-h-[120px]">
           {!isImageLoaded && (
@@ -52,12 +52,15 @@ export default function DisplayPokemon({
         {nameDisplayed && (
           <div className="flex flex-wrap justify-center items-center gap-2 mb-2">
             {/* Nom et numéro */}
-            <Typography variant="lead" className="leading-none">
+            <Typography
+              variant="lead"
+              className="leading-none text-gray-800 dark:text-white"
+            >
               {pokemon.name}
             </Typography>
             <Typography
               variant="body-lg"
-              className="text-gray-600 leading-none"
+              className="text-gray-600 dark:text-[#AFAFAF] leading-none"
             >
               #{pokemon.pokedexId.toString().padStart(3, "0")}
             </Typography>
@@ -96,16 +99,28 @@ export default function DisplayPokemon({
         {infoDisplayed && (
           <div className="flex flex-wrap justify-center gap-4 md:gap-6 mb-4 text-sm">
             <div className="text-center">
-              <span className="font-medium text-gray-600">Generation:</span>
-              <p>{pokemon.generation}</p>
+              <span className="font-medium text-gray-600 dark:text-[#A3A3A3]">
+                Generation:
+              </span>
+              <p className="text-black dark:text-[#DFDFDF]">
+                {pokemon.generation}
+              </p>
             </div>
             <div className="text-center">
-              <span className="font-medium text-gray-600">Height:</span>
-              <p>{pokemon.height}m</p>
+              <span className="font-medium text-gray-600 dark:text-[#A3A3A3]">
+                Height:
+              </span>
+              <p className="text-black dark:text-[#DFDFDF]">
+                {pokemon.height}m
+              </p>
             </div>
             <div className="text-center">
-              <span className="font-medium text-gray-600">Weight:</span>
-              <p>{pokemon.weight}kg</p>
+              <span className="font-medium text-gray-600 dark:text-[#A3A3A3]">
+                Weight:
+              </span>
+              <p className="text-black dark:text-[#DFDFDF]">
+                {pokemon.weight}kg
+              </p>
             </div>
           </div>
         )}

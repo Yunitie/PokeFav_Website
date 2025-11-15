@@ -14,11 +14,12 @@ export function ThemeToggle(): React.JSX.Element {
       aria-label="Toggle theme"
       onClick={() => setTheme(isDark ? "light" : "dark")}
       className={[
-        "px-2 py-1 rounded-md text-sm transition-colors",
-        "bg-neutral-100 text-neutral-800 hover:bg-neutral-200",
-        "dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700",
+        "w-10 h-10 rounded-full text-xl transition-colors flex items-center justify-center",
+        "text-neutral-800 shadow-lg/30 hover:shadow-lg/60",
+        "dark:text-neutral-100 shadow-lg/30 dark:hover:shadow-lg/60",
         "ring-1 ring-transparent",
       ].join(" ")}
+      suppressHydrationWarning
     >
       {label}
     </button>

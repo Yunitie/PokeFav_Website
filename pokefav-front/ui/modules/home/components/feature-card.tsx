@@ -19,12 +19,12 @@ export default function FeatureCard({
 }: FeatureCardProps) {
   return (
     <div
-      className={`bg-white/10 rounded-2xl px-8 py-6 text-center text-white ${className}`}
+      className={`bg-white/10 dark:bg-[#634584]/50 rounded-2xl px-8 py-6 text-center text-white ${className}`}
     >
-      <h2 className="text-xl font-semibold mb-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] drop-shadow-[0_-1px_1px_rgba(0,0,0,0.8)] drop-shadow-[1px_0_1px_rgba(0,0,0,0.8)] drop-shadow-[-1px_0_1px_rgba(0,0,0,0.8)]">
+      <h2 className="text-xl font-semibold mb-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)_0_-1px_1px_rgba(0,0,0,0.8)_1px_0_1px_rgba(0,0,0,0.8)_-1px_0_1px_rgba(0,0,0,0.8)]">
         {title}
       </h2>
-      <p className="text-sm text-white/80 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] drop-shadow-[0_-1px_1px_rgba(0,0,0,0.8)] drop-shadow-[1px_0_1px_rgba(0,0,0,0.8)] drop-shadow-[-1px_0_1px_rgba(0,0,0,0.8)]">
+      <p className="text-sm text-white/80 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)_0_-1px_1px_rgba(0,0,0,0.8)_1px_0_1px_rgba(0,0,0,0.8)_-1px_0_1px_rgba(0,0,0,0.8)]">
         {description}
       </p>
       <Image

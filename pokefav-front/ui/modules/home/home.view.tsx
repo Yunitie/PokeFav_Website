@@ -23,7 +23,7 @@ export default function HomeView({
   return (
     <Layout>
       <KonamiCode />
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white dark:bg-[#171717]">
         {/* Hero Section */}
         <section
           ref={sectionRef}
@@ -39,7 +39,7 @@ export default function HomeView({
                     component="h1"
                     theme="black"
                     weight="bold"
-                    className=""
+                    className="dark:text-[#EAEAEA]"
                   >
                     Gotta Rank &apos;Em All !
                   </Typography>
@@ -48,7 +48,7 @@ export default function HomeView({
                     component="p"
                     theme="gray-600"
                     weight="regular"
-                    className=""
+                    className="dark:text-[#EAEAEA]"
                   >
                     Rank all the Pokemons and discover your ultimate list!
                   </Typography>
@@ -117,7 +117,7 @@ export default function HomeView({
 
           {/* Diagonal separator */}
           <div
-            className="absolute inset-0 bg-gradient-to-t from-landing-dark-purple to-40% to-landing-purple z-0"
+            className="absolute inset-0 bg-gradient-to-t from-landing-dark-purple to-40% to-landing-purple z-0 dark:from-[#2a0c3b] dark:to-[#171717] dark:to-80%"
             style={{
               clipPath: `polygon(0% ${clipStartY}%, 100% ${clipEndY}%, 100% 100%, 0% 100%)`,
             }}

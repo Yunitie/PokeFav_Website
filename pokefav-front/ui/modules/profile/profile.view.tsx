@@ -22,11 +22,16 @@ export function ProfileView(props: ProfileViewProps) {
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-8">
       {/* Identité */}
-      <section className="bg-white rounded-xl shadow-sm border border-zinc-200/60 p-6">
+      <section className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-zinc-200/60 p-6">
         <div className="flex items-center gap-4">
           <div>
-            <Typography variant="h3">{displayName}</Typography>
-            <Typography variant="body-sm" className="text-zinc-500">
+            <Typography variant="h3" className="text-gray-900 dark:text-white">
+              {displayName}
+            </Typography>
+            <Typography
+              variant="body-sm"
+              className="text-zinc-500 dark:text-gray-400"
+            >
               {email}
             </Typography>
           </div>
@@ -34,10 +39,15 @@ export function ProfileView(props: ProfileViewProps) {
       </section>
 
       {/* Sécurité */}
-      <section className="bg-white rounded-xl shadow-sm border border-zinc-200/60 p-6 space-y-4">
-        <Typography variant="h4">Security</Typography>
+      <section className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-zinc-200/60 p-6 space-y-4">
+        <Typography variant="h4" className="text-gray-900 dark:text-white">
+          Security
+        </Typography>
         <div className="flex flex-col gap-2">
-          <Typography variant="body-base">
+          <Typography
+            variant="body-base"
+            className="text-gray-900 dark:text-white"
+          >
             You can receive an email to change your password.
           </Typography>
           <div>
@@ -49,7 +59,10 @@ export function ProfileView(props: ProfileViewProps) {
               {loadingReset ? "Sending…" : "Send password reset email"}
             </Button>
           </div>
-          <Typography variant="body-sm" className="text-zinc-500">
+          <Typography
+            variant="body-sm"
+            className="text-zinc-500 dark:text-gray-400"
+          >
             A link will be sent to your address. You can also use the
             &quot;Forgot password&quot; page.
           </Typography>
@@ -57,7 +70,7 @@ export function ProfileView(props: ProfileViewProps) {
       </section>
 
       {/* Danger zone */}
-      <section className="bg-white rounded-xl shadow-sm border border-red-200/60 p-6 space-y-4">
+      <section className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-red-200/60 p-6 space-y-4">
         <div className="flex items-center gap-2">
           <span className="text-red-600 text-2xl md:text-3xl" aria-hidden>
             ⚠️
@@ -66,13 +79,16 @@ export function ProfileView(props: ProfileViewProps) {
             Delete your account
           </Typography>
         </div>
-        <Typography variant="body-base">
+        <Typography
+          variant="body-base"
+          className="text-gray-900 dark:text-white"
+        >
           Deleting your account is irreversible. Type your exact display name to
           confirm.
         </Typography>
         <input
           type="text"
-          className="w-full rounded-md border border-zinc-300 bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-red-500"
+          className="w-full rounded-md border border-zinc-300 bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-red-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           placeholder={displayName}
           value={confirmText}
           onChange={(e) => setConfirmText(e.target.value)}

@@ -29,10 +29,19 @@ const Navigation = ({ textColor = "white" }: Props) => {
 
   const authenticationSystem = (
     <div className="flex items-center gap-2">
-      <Button baseUrl="/login" size="small">
+      <Button
+        baseUrl="/login"
+        size="small"
+        className="dark:text-[#EAEAEA] dark:bg-[#333333]"
+      >
         Login
       </Button>
-      <Button baseUrl="/login/register" size="small" variant="secondary">
+      <Button
+        baseUrl="/login/register"
+        size="small"
+        variant="secondary"
+        className="dark:text-[#FFFFFF] dark:bg-[#634685]"
+      >
         Register
       </Button>
     </div>
@@ -77,6 +86,7 @@ const Navigation = ({ textColor = "white" }: Props) => {
             }}
             size="small"
             variant="secondary"
+            className="dark:text-[#EAEAEA] dark:bg-[#333333]"
           >
             Logout
           </Button>
@@ -86,17 +96,22 @@ const Navigation = ({ textColor = "white" }: Props) => {
   );
 
   return (
-    <div className="border-b-2 border-gray-400 relative bg-gradient-to-r to-landing-purple to-60%">
+    <div className="border-b-2 border-gray-400 relative bg-gradient-to-r from-transparent to-landing-purple to-60% dark:from-[#3F3F3F] dark:to-[#161616]">
       <Container className="flex items-center justify-between py-1.5 gap-7 ">
         {/* Logo - always visible */}
         <Link href="/" onClick={closeMobileMenu}>
           <div className="flex items-center gap-2.5">
-            <Logo size="small" />
+            <Logo size="small" color="black" className="dark:fill-[#F4EAFF]" />
             <div className="flex flex-col">
-              <div className="text-gray font-extrabold text-[24px]">
+              <div className="text-gray font-extrabold text-[24px] dark:text-[#F4EAFF]">
                 PokeFav
               </div>
-              <Typography variant="caption4" theme="black" component="span">
+              <Typography
+                variant="caption4"
+                theme="black"
+                component="span"
+                className="dark:text-[#F4EAFF]"
+              >
                 Create and share your favorite Pokemon lists!
               </Typography>
             </div>
@@ -113,12 +128,14 @@ const Navigation = ({ textColor = "white" }: Props) => {
           >
             {navigationLinks}
           </Typography>
-          <ThemeToggle />
-          {/* Barre verticale si connecté */}
-          {!loading && authUser && (
-            <div className="self-stretch w-px bg-gray-600" />
-          )}
-          {userSection}
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            {/* Barre verticale si connecté */}
+            {!loading && authUser && (
+              <div className="self-stretch w-px bg-gray-600" />
+            )}
+            {userSection}
+          </div>
         </div>
 
         {/* Hamburger Button - visible only on mobile */}

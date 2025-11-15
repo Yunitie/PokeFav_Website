@@ -3,7 +3,7 @@ import { Typography } from "@/ui/design-system/typography/typography";
 
 const Footer = () => {
   return (
-    <footer className="border-gray-900 bg-landing-dark-purple">
+    <footer className="border-gray-900 bg-landing-dark-purple dark:bg-[#161616] dark:border-[#010101]">
       <Container className="py-4  md:items-center md:justify-between">
         <Typography
           variant="body-sm"
