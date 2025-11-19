@@ -7,6 +7,8 @@ import React, {
   useState,
   ReactNode,
 } from "react";
+import { API_BASE_URL } from "@/lib/config";
+import { logger } from "@/lib/logger";
 
 // Type utilisateur (à adapter selon ton backend)
 interface AuthUser {
@@ -64,20 +66,20 @@ export const AuthUserProvider = ({ children }: { children: ReactNode }) => {
   const refreshUser = async () => {
     setLoading(true);
     try {
-      console.log("AuthUserProvider - Vérification de l'utilisateur connecté");
-      const res = await fetch("http://localhost:3001/api/profile", {
+      logger.debug("AuthUserProvider - Checking logged in user");
+      const res = await fetch(`${API_BASE_URL}/api/profile`, {
         credentials: "include",
       });
       if (res.ok) {
         const user = await res.json();
-        console.log("AuthUserProvider - Utilisateur connecté:", user);
+        logger.debug("AuthUserProvider - User logged in:", user);
         setAuthUser(user);
       } else {
-        console.log("AuthUserProvider - Aucun utilisateur connecté");
+        logger.debug("AuthUserProvider - No user logged in");
         setAuthUser(null);
       }
     } catch (e) {
-      console.log("AuthUserProvider - Erreur lors de la vérification:", e);
+      logger.debug("AuthUserProvider - Error during verification:", e);
       setAuthUser(null);
     } finally {
       setLoading(false);
@@ -88,7 +90,7 @@ export const AuthUserProvider = ({ children }: { children: ReactNode }) => {
   const login = async (email: string, password: string) => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3001/api/auth/login", {
+      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -107,7 +109,7 @@ export const AuthUserProvider = ({ children }: { children: ReactNode }) => {
       }
       await refreshUser();
     } catch (error) {
-      console.error("Login error:", error);
+      logger.error("Login error:", error);
       throw error;
     } finally {
       setLoading(false);
@@ -118,7 +120,7 @@ export const AuthUserProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     setLoading(true);
     try {
-      await fetch("http://localhost:3001/api/auth/logout", {
+      await fetch(`${API_BASE_URL}/api/auth/logout`, {
         method: "POST",
         credentials: "include",
       });
@@ -132,7 +134,7 @@ export const AuthUserProvider = ({ children }: { children: ReactNode }) => {
   // Refresh du token d'accès
   const refreshAccessToken = async (): Promise<string | null> => {
     try {
-      const res = await fetch("http://localhost:3001/api/auth/refresh", {
+      const res = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -153,13 +155,13 @@ export const AuthUserProvider = ({ children }: { children: ReactNode }) => {
         setAccessToken(null);
         // Redirection vers login après un court délai
         setTimeout(() => {
-          window.location.href = "/login";
+          window.location.href = "/login?redirected=true";
         }, 1000);
       }
 
       return null;
     } catch (error) {
-      console.error("Error during token refresh:", error);
+      logger.error("Error during token refresh:", error);
       // En cas d'erreur réseau, nettoyer aussi l'état
       setAuthUser(null);
       setAccessToken(null);
@@ -169,12 +171,12 @@ export const AuthUserProvider = ({ children }: { children: ReactNode }) => {
 
   // Vérifie l'utilisateur au chargement (seulement côté client)
   useEffect(() => {
-    console.log("AuthUserProvider - Initialisation du contexte");
+    logger.debug("AuthUserProvider - Initializing context");
     refreshUser();
     // tente d'obtenir un access token via refresh cookie httpOnly
     (async () => {
       try {
-        const res = await fetch("http://localhost:3001/api/auth/refresh", {
+        const res = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },

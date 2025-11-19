@@ -21,7 +21,7 @@ export default function MyRankingContainer() {
   // Redirige vers /login si l'utilisateur n'est pas connecté
   useEffect(() => {
     if (!loading && !authUser) {
-      router.replace("/login");
+      router.replace("/login?redirected=true");
     }
   }, [loading, authUser, router]);
 

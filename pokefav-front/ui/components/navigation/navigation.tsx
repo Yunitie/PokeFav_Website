@@ -10,6 +10,7 @@ import { useAuth } from "@/context/AuthUserContext";
 import { useState } from "react";
 // import { AccountAvatarNavigationLink } from "./account-avatar-link";
 import { ThemeToggle } from "@theme-toggle";
+import { logger } from "@/lib/logger";
 
 interface Props {
   textColor?: "white" | "black";
@@ -81,7 +82,7 @@ const Navigation = ({ textColor = "white" }: Props) => {
               try {
                 await logout();
               } catch (error) {
-                console.error("Error during logout:", error);
+                logger.error("Error during logout:", error);
               }
             }}
             size="small"
@@ -244,7 +245,7 @@ const Navigation = ({ textColor = "white" }: Props) => {
                           await logout();
                           closeMobileMenu();
                         } catch (error) {
-                          console.error("Error during logout:", error);
+                          logger.error("Error during logout:", error);
                         }
                       }}
                       size="small"

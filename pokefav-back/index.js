@@ -1,4 +1,9 @@
 require("dotenv").config();
+
+// Validation des variables d'environnement avant de continuer
+const { validateEnv } = require("./config/env-validator");
+validateEnv();
+
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const cors = require("cors");
@@ -9,9 +14,35 @@ const swaggerSpecs = require("./utils/swagger/swagger");
 const app = express();
 const prisma = new PrismaClient();
 
+// Configuration pour détecter l'IP réelle derrière un proxy (nginx, etc.)
+// Nécessaire pour que le rate limiting fonctionne correctement
+// Sécurité : On spécifie les IPs de confiance plutôt que de faire confiance au premier proxy
+// En développement, on accepte localhost. En production, définir TRUSTED_PROXY_IPS dans .env
+const trustedProxyIps = process.env.TRUSTED_PROXY_IPS
+  ? process.env.TRUSTED_PROXY_IPS.split(",").map((ip) => ip.trim())
+  : ["127.0.0.1", "::1"]; // Par défaut : localhost (dev uniquement)
+
+if (process.env.NODE_ENV === "production" && !process.env.TRUSTED_PROXY_IPS) {
+  console.warn(
+    "⚠️  WARNING: TRUSTED_PROXY_IPS not set in production. Using default (localhost only)."
+  );
+}
+
+app.set("trust proxy", trustedProxyIps);
+
+// FRONTEND_URL est validé par env-validator.js (requis en production)
+// En développement, on utilise une valeur par défaut si non défini
+const frontendUrl =
+  process.env.FRONTEND_URL ||
+  (process.env.NODE_ENV === "production" ? null : "http://localhost:3000");
+
+if (!frontendUrl) {
+  throw new Error("FRONTEND_URL must be defined in production");
+}
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000", // URL de votre frontend Next.js
+    origin: frontendUrl,
     credentials: true, // Permet l'envoi de cookies
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -20,15 +51,17 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-// Configuration Swagger
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerSpecs, {
-    customCss: ".swagger-ui .topbar { display: none }",
-    customSiteTitle: "PokeFav API Documentation",
-  })
-);
+// Configuration Swagger (seulement en développement)
+if (process.env.NODE_ENV !== "production") {
+  app.use(
+    "/api-docs",
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerSpecs, {
+      customCss: ".swagger-ui .topbar { display: none }",
+      customSiteTitle: "PokeFav API Documentation",
+    })
+  );
+}
 
 // Importation des routes
 const authLoginRouter = require("./api/auth/login/route");
@@ -59,12 +92,13 @@ app.use("/api/pokemon", pokemonByIdRouter);
 app.use("/api/share/user", shareUserRouter);
 
 // Middleware d'erreur basique
+const logger = require("./utils/logger");
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ error: "Erreur serveur" });
+  logger.error(err);
+  res.status(500).json({ error: "Server error" });
 });
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`Serveur backend démarré sur http://localhost:${PORT}`);
+  logger.log(`Backend server started on http://localhost:${PORT}`);
 });

@@ -13,6 +13,7 @@ interface LoginViewProps {
   setPassword: (password: string) => void;
   error: string;
   success: string;
+  info: string;
   isLoading: boolean;
   onSubmit: (e: React.FormEvent) => void;
 }
@@ -27,28 +28,54 @@ export default function LoginView({
   setPassword,
   error,
   success,
+  info,
   isLoading,
   onSubmit,
 }: LoginViewProps) {
   return (
-    // Conteneur principal avec dégradé de fond et centrage vertical
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    // Conteneur principal avec fond blanc et centrage vertical
+    <div className="min-h-[calc(100vh-200px)] flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-white dark:bg-[#171717]">
+      {/* Affichage des messages d'information en haut de la page */}
+      {info && (
+        <Container className="max-w-md w-full mb-4">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <Typography
+              variant="body-base"
+              className="text-blue-800 dark:text-blue-200"
+            >
+              {info}
+            </Typography>
+          </div>
+        </Container>
+      )}
       {/* Conteneur avec largeur maximale pour le formulaire */}
       <Container className="max-w-md w-full">
-        {/* Carte blanche contenant le formulaire avec ombre et coins arrondis */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        {/* Carte contenant le formulaire avec bordure et coins arrondis */}
+        <div className="bg-white dark:bg-[#1F1F1F] border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm p-8">
           {/* Section d'en-tête avec logo et titre */}
           <div className="text-center mb-8">
             {/* Logo centré */}
             <div className="flex justify-center mb-4">
-              <Logo size="large" />
+              <Logo
+                size="large"
+                color="black"
+                className="dark:fill-[#F3EDF5]"
+              />
             </div>
             {/* Titre principal de la page */}
-            <Typography variant="h2" component="h1" className="mb-2">
+            <Typography
+              variant="h2"
+              component="h1"
+              className="mb-2 text-black dark:text-white"
+            >
               Login
             </Typography>
             {/* Sous-titre descriptif */}
-            <Typography variant="body-sm" theme="gray">
+            <Typography
+              variant="body-sm"
+              theme="gray"
+              className="text-black dark:text-white"
+            >
               Sign in to your PokeFav account
             </Typography>
           </div>
@@ -59,7 +86,7 @@ export default function LoginView({
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
               >
                 Email address
               </label>
@@ -71,7 +98,7 @@ export default function LoginView({
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-[#2A2A2A] dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 placeholder="your@email.com"
               />
             </div>
@@ -80,7 +107,7 @@ export default function LoginView({
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
               >
                 Password
               </label>
@@ -92,7 +119,7 @@ export default function LoginView({
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-[#2A2A2A] dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 placeholder="Your password"
               />
             </div>
@@ -132,11 +159,15 @@ export default function LoginView({
           <div className="mt-6 text-center space-y-4">
             {/* Lien vers la page d'inscription */}
             <div>
-              <Typography variant="body-base" theme="gray">
+              <Typography
+                variant="body-base"
+                theme="gray"
+                className="text-black dark:text-gray-300"
+              >
                 Don&apos;t have an account yet?{" "}
                 <a
                   href="/login/register"
-                  className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors"
                 >
                   Create an account
                 </a>
@@ -146,7 +177,7 @@ export default function LoginView({
             <div>
               <a
                 href="/login/forgot-password"
-                className="text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 transition-colors"
               >
                 Forgot password?
               </a>

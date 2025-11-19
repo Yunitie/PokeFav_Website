@@ -1,11 +1,19 @@
 const express = require("express");
 const { prisma } = require("../../prisma");
 const jwt = require("jsonwebtoken");
+const logger = require("../../utils/logger");
 
 const router = express.Router();
 
-const JWT_REFRESH_SECRET =
-  process.env.JWT_REFRESH_SECRET || "dev-refresh-secret";
+// JWT_REFRESH_SECRET doit être défini via les variables d'environnement
+// La validation est effectuée au démarrage dans env-validator.js
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+
+if (!JWT_REFRESH_SECRET) {
+  throw new Error(
+    "JWT_REFRESH_SECRET is missing: define it in your environment (.env) before starting the server"
+  );
+}
 
 /**
  * @swagger
@@ -60,13 +68,13 @@ router.get("/", async (req, res) => {
     const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) {
-      return res.status(401).json({ error: "Non authentifié" });
+      return res.status(401).json({ error: "Not authenticated" });
     }
 
     // Vérifier le refresh token
     const payload = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
     if (!payload || !payload.userId) {
-      return res.status(401).json({ error: "Token invalide" });
+      return res.status(401).json({ error: "Invalid token" });
     }
 
     // Récupérer l'utilisateur depuis la base de données
@@ -74,7 +82,7 @@ router.get("/", async (req, res) => {
       where: { id: payload.userId },
     });
     if (!user) {
-      return res.status(404).json({ error: "Utilisateur non trouvé" });
+      return res.status(404).json({ error: "User not found" });
     }
 
     return res.json({
@@ -86,8 +94,8 @@ router.get("/", async (req, res) => {
       isVerified: user.isVerified,
     });
   } catch (err) {
-    console.error("Erreur lors de la récupération du profil:", err);
-    return res.status(401).json({ error: "Token invalide" });
+    logger.error("Error retrieving profile:", err);
+    return res.status(401).json({ error: "Invalid token" });
   }
 });
 
@@ -122,12 +130,12 @@ router.delete("/", async (req, res) => {
   try {
     const refreshToken = req.cookies[COOKIE_NAME];
     if (!refreshToken) {
-      return res.status(401).json({ error: "Non authentifié" });
+      return res.status(401).json({ error: "Not authenticated" });
     }
 
     const payload = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
     if (!payload || !payload.userId) {
-      return res.status(401).json({ error: "Token invalide" });
+      return res.status(401).json({ error: "Invalid token" });
     }
 
     // Supprimer l'utilisateur
@@ -143,8 +151,8 @@ router.delete("/", async (req, res) => {
 
     return res.status(204).send();
   } catch (err) {
-    console.error("Erreur lors de la suppression du compte:", err);
-    return res.status(500).json({ error: "Erreur serveur" });
+    logger.error("Error deleting account:", err);
+    return res.status(500).json({ error: "Server error" });
   }
 });
 

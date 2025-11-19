@@ -5,6 +5,8 @@
 // - En cas d'échec du refresh: déclencher la déconnexion via onAuthFailed()
 // - Exposer une API simple (get/post/put/delete/request)
 
+import { API_BASE_URL } from "./config";
+
 export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
 // Dépendances injectées par le contexte d'authentification
@@ -21,7 +23,7 @@ export interface HttpClientDeps {
 
 // Fabrique de client HTTP. On la paramètre avec les dépendances ci-dessus.
 export function createHttpClient(deps: HttpClientDeps) {
-  const baseURL = deps.baseURL ?? "http://localhost:3001";
+  const baseURL = deps.baseURL ?? API_BASE_URL;
 
   // Méthode générique qui alimente toutes les autres (get/post/put/delete)
   // Elle gère:

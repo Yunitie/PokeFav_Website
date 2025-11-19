@@ -27,24 +27,36 @@ export default function ForgotPasswordView({
   onSubmit,
 }: ForgotPasswordViewProps) {
   return (
-    // Conteneur principal avec dégradé de fond et centrage vertical
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    // Conteneur principal avec fond blanc et centrage vertical
+    <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-white dark:bg-[#171717]">
       {/* Conteneur avec largeur maximale pour le formulaire */}
       <Container className="max-w-md w-full">
-        {/* Carte blanche contenant le formulaire avec ombre et coins arrondis */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        {/* Carte contenant le formulaire avec bordure et coins arrondis */}
+        <div className="bg-white dark:bg-[#1F1F1F] border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm p-8">
           {/* Section d'en-tête avec logo et titre */}
           <div className="text-center mb-8">
             {/* Logo centré */}
             <div className="flex justify-center mb-4">
-              <Logo size="large" />
+              <Logo
+                size="large"
+                color="black"
+                className="dark:fill-[#F5F5F5]"
+              />
             </div>
             {/* Titre principal de la page */}
-            <Typography variant="h2" component="h1" className="mb-2">
+            <Typography
+              variant="h2"
+              component="h1"
+              className="mb-2 text-black dark:text-white"
+            >
               Forgot password
             </Typography>
             {/* Sous-titre descriptif */}
-            <Typography variant="body-sm" theme="gray">
+            <Typography
+              variant="body-sm"
+              theme="gray"
+              className="text-black dark:text-gray-400"
+            >
               Enter your email to receive a recovery link
             </Typography>
           </div>
@@ -55,7 +67,7 @@ export default function ForgotPasswordView({
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
               >
                 Email address
               </label>
@@ -67,7 +79,7 @@ export default function ForgotPasswordView({
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full px-4 py-3 border border-gray-300 text-gray-800 dark:border-gray-600 dark:bg-[#2A2A2A] dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 placeholder="your@email.com"
               />
             </div>
@@ -107,11 +119,15 @@ export default function ForgotPasswordView({
           <div className="mt-6 text-center space-y-4">
             {/* Lien de retour vers la connexion */}
             <div>
-              <Typography variant="body-base" theme="gray">
+              <Typography
+                variant="body-base"
+                theme="gray"
+                className="text-black dark:text-gray-400"
+              >
                 Remember your password?{" "}
                 <a
                   href="/login"
-                  className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors"
                 >
                   Log in
                 </a>
@@ -119,11 +135,15 @@ export default function ForgotPasswordView({
             </div>
             {/* Lien vers la page d'inscription */}
             <div>
-              <Typography variant="body-base" theme="gray">
-                Don't have an account yet?{" "}
+              <Typography
+                variant="body-base"
+                theme="gray"
+                className="text-black dark:text-gray-400"
+              >
+                Don&apos;t have an account yet?{" "}
                 <a
                   href="/login/register"
-                  className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors"
                 >
                   Create an account
                 </a>

@@ -3,6 +3,7 @@ const router = express.Router();
 
 const { prisma } = require("../../../prisma"); // ajuste le chemin selon ton export
 const { requireAuth } = require("../../../requireAuth"); // doit attacher userId au req.user
+const logger = require("../../../utils/logger");
 
 /**
  * @swagger
@@ -167,7 +168,7 @@ router.post("/", requireAuth, async (req, res) => {
 
     return res.json({ updated: false, score: existing.score });
   } catch (err) {
-    console.error("POST /api/pokemon/rank error", err);
+    logger.error("POST /api/pokemon/rank error", err);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -211,7 +212,7 @@ router.get("/", requireAuth, async (req, res) => {
     const payload = ranks.map((r) => ({ score: r.score, pokemon: r.pokemon }));
     return res.json(payload);
   } catch (err) {
-    console.error("GET /api/pokemon/rank error", err);
+    logger.error("GET /api/pokemon/rank error", err);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 });

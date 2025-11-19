@@ -1,6 +1,7 @@
 const express = require("express");
 const { prisma } = require("../../../prisma");
 const bcrypt = require("bcrypt");
+const { registerLimiter } = require("../../../config/rate-limiter");
 
 const router = express.Router();
 
@@ -36,8 +37,14 @@ const router = express.Router();
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
+ *       429:
+ *         description: Trop de tentatives
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
-router.post("/", async (req, res) => {
+router.post("/", registerLimiter, async (req, res) => {
   const { email, password, displayName } = req.body;
 
   if (!email || !password) {

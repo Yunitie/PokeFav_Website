@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const logger = require("./logger");
 
 // Transporteur configuré pour Gmail SMTP
 const transporter = nodemailer.createTransport({
@@ -23,9 +24,9 @@ async function sendMail({ to, subject, html }) {
       subject,
       html,
     });
-    console.log(`Email envoyé à ${to}`);
+    logger.debug(`Email sent to ${to}`);
   } catch (error) {
-    console.error("Erreur lors de l'envoi de l'email:", error.message);
+    logger.error("Error sending email:", error.message);
     throw new Error(
       "Impossible d'envoyer l'email. Vérifiez la configuration SMTP."
     );

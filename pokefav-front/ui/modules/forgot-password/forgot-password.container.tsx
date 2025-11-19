@@ -6,6 +6,8 @@ import React from "react";
 // Import des hooks Next.js pour la navigation et les paramètres d'URL
 import { useSearchParams } from "next/navigation";
 import ForgotPasswordView from "./forgot-password.view";
+import { API_BASE_URL } from "@/lib/config";
+import { logger } from "@/lib/logger";
 
 /**
  * Container de mot de passe oublié - Gère toute la logique métier de la page de récupération
@@ -41,16 +43,13 @@ export default function ForgotPasswordContainer() {
 
     try {
       // Appel API pour envoyer l'email de récupération
-      const response = await fetch(
-        "http://localhost:3001/api/auth/forgot-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
 
       const data = await response.json();
 
@@ -68,7 +67,7 @@ export default function ForgotPasswordContainer() {
       }
     } catch (error) {
       // Gestion des erreurs de réseau ou autres erreurs
-      console.error("Erreur lors de l'appel API:", error);
+      logger.error("Error during API call:", error);
       setError(
         "Unable to contact the server. Check your connection and try again."
       );

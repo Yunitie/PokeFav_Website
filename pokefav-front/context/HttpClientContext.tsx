@@ -3,6 +3,7 @@
 import { createContext, useContext, useMemo } from "react";
 import { createHttpClient } from "@/lib/http-client";
 import { useAuth } from "@/context/AuthUserContext";
+import { API_BASE_URL } from "@/lib/config";
 
 const HttpClientContext = createContext<ReturnType<
   typeof createHttpClient
@@ -27,10 +28,10 @@ export function HttpClientProvider({
       refreshAccessToken,
       onAuthFailed: () => {
         logout().finally(() => {
-          if (typeof window !== "undefined") window.location.href = "/login";
+          if (typeof window !== "undefined") window.location.href = "/login?redirected=true";
         });
       },
-      baseURL: "http://localhost:3001",
+      baseURL: API_BASE_URL,
     });
   }, [accessToken, refreshAccessToken, logout]);
 

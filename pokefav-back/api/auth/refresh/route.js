@@ -4,9 +4,16 @@ const jwt = require("jsonwebtoken");
 // Route pour récupérer un nouveau token d'accès
 const router = express.Router();
 
-// Variables d'environnement pour les tokens
+// Les secrets JWT doivent être définis via les variables d'environnement
+// La validation est effectuée au démarrage dans env-validator.js
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+
+if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
+  throw new Error(
+    "JWT_SECRET and JWT_REFRESH_SECRET must be defined in environment variables"
+  );
+}
 
 /**
  * @swagger
@@ -53,7 +60,7 @@ const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
 router.post("/", async (req, res) => {
   const refreshToken = req.cookies?.refreshToken;
   if (!refreshToken) {
-    return res.status(400).json({ error: "Refresh token manquant." });
+    return res.status(400).json({ error: "Refresh token missing." });
   }
   try {
     const payload = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
@@ -64,7 +71,7 @@ router.post("/", async (req, res) => {
     );
     return res.json({ accessToken: newAccessToken });
   } catch (error) {
-    return res.status(401).json({ error: "Refresh token invalide ou expiré." });
+    return res.status(401).json({ error: "Invalid or expired refresh token." });
   }
 });
 

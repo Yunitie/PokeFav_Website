@@ -3,6 +3,8 @@ const express = require("express");
 const crypto = require("crypto");
 const { prisma } = require("../../../prisma");
 const { sendMail } = require("../../../utils/mailer");
+const logger = require("../../../utils/logger");
+const { forgotPasswordLimiter } = require("../../../config/rate-limiter");
 
 // Création d'un nouveau routeur Express
 const router = express.Router();
@@ -37,45 +39,51 @@ const router = express.Router();
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
+ *       429:
+ *         description: Trop de tentatives
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
-router.post("/", async (req, res) => {
+router.post("/", forgotPasswordLimiter, async (req, res) => {
   try {
-    console.log("=== Début de la requête forgot-password ===");
-    console.log("Variables d'environnement:", {
-      EMAIL_USER: process.env.EMAIL_USER ? "Définie" : "Manquante",
-      EMAIL_PASSWORD: process.env.EMAIL_PASSWORD ? "Définie" : "Manquante",
-      DATABASE_URL: process.env.DATABASE_URL ? "Définie" : "Manquante",
+    logger.debug("=== Forgot password request started ===");
+    logger.debug("Environment variables:", {
+      EMAIL_USER: process.env.EMAIL_USER ? "Defined" : "Missing",
+      EMAIL_PASSWORD: process.env.EMAIL_PASSWORD ? "Defined" : "Missing",
+      DATABASE_URL: process.env.DATABASE_URL ? "Defined" : "Missing",
     });
 
     // Récupération de l'email depuis le corps de la requête
     const { email } = req.body;
-    console.log("Email reçu:", email);
+    logger.debug("Email received:", email);
 
     if (!email) {
-      console.log("Erreur: Email manquant");
+      logger.debug("Error: Email missing");
       return res.status(400).json({ error: "Email requis." });
     }
 
     // Recherche de l'utilisateur correspondant à l'email
-    console.log("Recherche de l'utilisateur...");
+    logger.debug("Searching for user...");
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      console.log("Utilisateur non trouvé");
+      logger.debug("User not found");
       // Pour la sécurité, on ne révèle pas si l'email existe ou non
       return res.json({
         message: "Si un compte existe, un email a été envoyé.",
       });
     }
 
-    console.log("Utilisateur trouvé, génération du token...");
+    logger.debug("User found, generating token...");
     // Génération d'un token sécurisé pour la réinitialisation
     const token = crypto.randomBytes(32).toString("hex");
     // Définition d'une date d'expiration (ici, 1 heure)
     const expiry = new Date(Date.now() + 1000 * 60 * 60); // 1h
 
     // Mise à jour de l'utilisateur avec le token et la date d'expiration
-    console.log("Mise à jour de l'utilisateur...");
+    logger.debug("Updating user...");
     await prisma.user.update({
       where: { email },
       data: {
@@ -89,32 +97,32 @@ router.post("/", async (req, res) => {
     const resetLink = `${frontendUrl}/reset-password?token=${token}&email=${encodeURIComponent(
       email
     )}`;
-    console.log("Lien de réinitialisation généré:", resetLink);
+    logger.debug("Reset link generated");
 
     // Envoi de l'email de réinitialisation
-    console.log("Tentative d'envoi d'email...");
+    logger.debug("Attempting to send email...");
     try {
       await sendMail({
         to: email,
         subject: "Réinitialisation de votre mot de passe",
         html: `<p>Pour réinitialiser votre mot de passe, cliquez sur ce lien : <a href="${resetLink}">${resetLink}</a></p>`,
       });
-      console.log("Email envoyé avec succès");
+      logger.debug("Email sent successfully");
     } catch (error) {
-      console.error("Erreur lors de l'envoi de l'email:", error.message);
-      console.error("Stack trace:", error.stack);
+      logger.error("Error sending email:", error.message);
+      logger.error("Stack trace:", error.stack);
       // On retourne quand même un succès pour ne pas révéler d'informations sensibles
       return res.json({
         message: "Si un compte existe, un email a été envoyé.",
       });
     }
 
-    console.log("=== Fin de la requête forgot-password ===");
+    logger.debug("=== Forgot password request completed ===");
     // Réponse générique pour ne pas révéler si l'email existe ou non
     return res.json({ message: "Si un compte existe, un email a été envoyé." });
   } catch (error) {
-    console.error("Erreur générale dans forgot-password:", error.message);
-    console.error("Stack trace:", error.stack);
+    logger.error("General error in forgot-password:", error.message);
+    logger.error("Stack trace:", error.stack);
     return res.status(500).json({ error: "Erreur serveur interne." });
   }
 });

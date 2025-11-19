@@ -2,11 +2,20 @@ const express = require("express");
 const { prisma } = require("../../../prisma");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { loginLimiter } = require("../../../config/rate-limiter");
 
 const router = express.Router();
 
+// Les secrets JWT doivent être définis via les variables d'environnement
+// La validation est effectuée au démarrage dans env-validator.js
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+
+if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
+  throw new Error(
+    "JWT_SECRET and JWT_REFRESH_SECRET must be defined in environment variables"
+  );
+}
 
 /**
  * @swagger
@@ -46,20 +55,31 @@ const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
+ *       429:
+ *         description: Trop de tentatives
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
-router.post("/", async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({ error: "Email et mot de passe requis." });
-  }
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) {
-    return res.status(404).json({ error: "Utilisateur non trouvé." });
-  }
-  const passwordMatch = await bcrypt.compare(password, user.password);
-  if (!passwordMatch) {
-    return res.status(401).json({ error: "Mot de passe incorrect." });
-  }
+router.post("/", loginLimiter, async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password required." });
+    }
+    const user = await prisma.user.findUnique({ where: { email } });
+    
+    // Ne révèle pas si l'utilisateur existe ou non (sécurité)
+    // Toujours faire le hash même si l'utilisateur n'existe pas pour éviter timing attacks
+    const passwordMatch = user
+      ? await bcrypt.compare(password, user.password)
+      : false;
+    
+    if (!user || !passwordMatch) {
+      // Message générique pour ne pas révéler si l'email existe
+      return res.status(401).json({ error: "Incorrect email or password." });
+    }
   const accessToken = jwt.sign(
     { userId: user.id, email: user.email },
     JWT_SECRET,
@@ -70,21 +90,26 @@ router.post("/", async (req, res) => {
     JWT_REFRESH_SECRET,
     { expiresIn: "1d" }
   );
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 1 * 1000, // 1 jour en ms
-  });
-  return res.json({
-    accessToken,
-    user: {
-      id: user.id,
-      email: user.email,
-      displayName: user.displayName,
-    },
-  });
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 1 * 1000, // 1 jour en ms
+    });
+    return res.json({
+      accessToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        displayName: user.displayName,
+      },
+    });
+  } catch (error) {
+    // Ne pas exposer les détails de l'erreur en production
+    logger.error("Login error:", error);
+    return res.status(500).json({ error: "An error occurred. Please try again." });
+  }
 });
 
 module.exports = router;

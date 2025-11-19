@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import RegisterView from "./register.view";
+import { API_BASE_URL } from "@/lib/config";
 
 export default function RegisterContainer() {
   const [formData, setFormData] = useState({
@@ -42,7 +43,7 @@ export default function RegisterContainer() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3001/api/auth/register", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

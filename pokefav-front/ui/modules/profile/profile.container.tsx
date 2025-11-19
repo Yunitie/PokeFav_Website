@@ -112,7 +112,7 @@ export function ProfileContainer() {
     return <div className="p-6">Loading…</div>;
   }
   if (!authUser) {
-    if (typeof window !== "undefined") window.location.href = "/login";
+    if (typeof window !== "undefined") window.location.href = "/login?redirected=true";
     return null;
   }
 

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const { prisma } = require("../../../prisma");
+const logger = require("../../../utils/logger");
 
 /**
  * @swagger
@@ -131,7 +132,7 @@ router.get("/:publicId", async (req, res) => {
 
     return res.json(payload);
   } catch (err) {
-    console.error("GET /api/share/user/:publicId error", err);
+    logger.error("GET /api/share/user/:publicId error", err);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 });

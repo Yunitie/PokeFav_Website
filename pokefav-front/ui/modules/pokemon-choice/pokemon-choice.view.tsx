@@ -161,10 +161,14 @@ export default function PokemonChoiceView({
                   <select
                     value={count}
                     onChange={(e) => onChangeCount(Number(e.target.value))}
-                    className="border rounded px-2 py-1 text-gray-800 dark:text-white"
+                    className="border rounded px-2 py-1 text-gray-800 dark:text-white bg-white dark:bg-[#1F1F1F]"
                   >
                     {[2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                      <option key={n} value={n}>
+                      <option
+                        key={n}
+                        value={n}
+                        className="text-gray-800 dark:text-white"
+                      >
                         {n}
                       </option>
                     ))}

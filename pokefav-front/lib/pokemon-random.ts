@@ -1,13 +1,12 @@
 import { Pokemon } from '@/types/pokemon';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+import { API_URL } from './config';
 
 export class PokemonRandomService {
   /**
    * Récupère un Pokémon aléatoire depuis toute la table Pokemon
    */
   static async getRandomPokemon(generations?: string[]): Promise<Pokemon> {
-    const url = new URL(`${API_BASE_URL}/pokemon/random`);
+    const url = new URL(`${API_URL}/pokemon/random`);
     
     if (generations && generations.length > 0) {
       url.searchParams.set('generations', generations.join(','));

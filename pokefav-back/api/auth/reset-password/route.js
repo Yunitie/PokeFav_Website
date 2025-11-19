@@ -2,6 +2,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const { prisma } = require("../../../prisma");
+const { resetPasswordLimiter } = require("../../../config/rate-limiter");
 
 // Création d'un nouveau routeur Express
 const router = express.Router();
@@ -48,8 +49,14 @@ const router = express.Router();
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
+ *       429:
+ *         description: Trop de tentatives
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
-router.post("/", async (req, res) => {
+router.post("/", resetPasswordLimiter, async (req, res) => {
   // Récupération des données depuis le corps de la requête
   const { email, token, newPassword } = req.body;
   if (!email || !token || !newPassword) {

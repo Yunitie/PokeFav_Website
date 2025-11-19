@@ -1,5 +1,6 @@
 const express = require("express");
 const { prisma } = require("../../../prisma");
+const logger = require("../../../utils/logger");
 
 const router = express.Router();
 
@@ -115,8 +116,8 @@ router.get("/", async (req, res) => {
 
     return res.json(randomPokemon);
   } catch (error) {
-    console.error(
-      "Erreur lors de la récupération du Pokémon aléatoire:",
+    logger.error(
+      "Error retrieving random Pokemon:",
       error
     );
     return res.status(500).json({
