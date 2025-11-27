@@ -5,6 +5,7 @@ const { prisma } = require("../../../prisma");
 const { sendMail } = require("../../../utils/mailer");
 const logger = require("../../../utils/logger");
 const { forgotPasswordLimiter } = require("../../../config/rate-limiter");
+const { validateEmail } = require("../../../utils/email-validator");
 
 // Création d'un nouveau routeur Express
 const router = express.Router();
@@ -62,6 +63,13 @@ router.post("/", forgotPasswordLimiter, async (req, res) => {
     if (!email) {
       logger.debug("Error: Email missing");
       return res.status(400).json({ error: "Email requis." });
+    }
+
+    // Validation du format de l'email
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.valid) {
+      logger.debug("Error: Invalid email format");
+      return res.status(400).json({ error: emailValidation.error });
     }
 
     // Recherche de l'utilisateur correspondant à l'email

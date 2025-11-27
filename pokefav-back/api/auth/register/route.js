@@ -2,6 +2,8 @@ const express = require("express");
 const { prisma } = require("../../../prisma");
 const bcrypt = require("bcrypt");
 const { registerLimiter } = require("../../../config/rate-limiter");
+const { validatePassword } = require("../../../utils/password-validator");
+const { validateEmail } = require("../../../utils/email-validator");
 
 const router = express.Router();
 
@@ -49,6 +51,18 @@ router.post("/", registerLimiter, async (req, res) => {
 
   if (!email || !password) {
     return res.status(400).json({ error: "Email et mot de passe requis." });
+  }
+
+  // Validation du format de l'email
+  const emailValidation = validateEmail(email);
+  if (!emailValidation.valid) {
+    return res.status(400).json({ error: emailValidation.error });
+  }
+
+  // Validation de la force du mot de passe
+  const { valid, error } = validatePassword(password);
+  if (!valid) {
+    return res.status(400).json({ error });
   }
 
   const existingUser = await prisma.user.findUnique({ where: { email } });

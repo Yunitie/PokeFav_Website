@@ -3,6 +3,8 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const { prisma } = require("../../../prisma");
 const { resetPasswordLimiter } = require("../../../config/rate-limiter");
+const { validatePassword } = require("../../../utils/password-validator");
+const { validateEmail } = require("../../../utils/email-validator");
 
 // Création d'un nouveau routeur Express
 const router = express.Router();
@@ -64,6 +66,18 @@ router.post("/", resetPasswordLimiter, async (req, res) => {
     return res
       .status(400)
       .json({ error: "Email, token et nouveau mot de passe requis." });
+  }
+
+  // Validation du format de l'email
+  const emailValidation = validateEmail(email);
+  if (!emailValidation.valid) {
+    return res.status(400).json({ error: emailValidation.error });
+  }
+
+  // Validation de la force du nouveau mot de passe
+  const { valid, error } = validatePassword(newPassword);
+  if (!valid) {
+    return res.status(400).json({ error });
   }
 
   // Recherche de l'utilisateur correspondant à l'email et au token
