@@ -3,6 +3,7 @@ const { prisma } = require("../../../prisma");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { loginLimiter } = require("../../../config/rate-limiter");
+const logger = require("../../../utils/logger");
 
 const router = express.Router();
 
@@ -69,27 +70,27 @@ router.post("/", loginLimiter, async (req, res) => {
       return res.status(400).json({ error: "Email and password required." });
     }
     const user = await prisma.user.findUnique({ where: { email } });
-    
+
     // Ne révèle pas si l'utilisateur existe ou non (sécurité)
     // Toujours faire le hash même si l'utilisateur n'existe pas pour éviter timing attacks
     const passwordMatch = user
       ? await bcrypt.compare(password, user.password)
       : false;
-    
+
     if (!user || !passwordMatch) {
       // Message générique pour ne pas révéler si l'email existe
       return res.status(401).json({ error: "Incorrect email or password." });
     }
-  const accessToken = jwt.sign(
-    { userId: user.id, email: user.email },
-    JWT_SECRET,
-    { expiresIn: "15m" }
-  );
-  const refreshToken = jwt.sign(
-    { userId: user.id, email: user.email },
-    JWT_REFRESH_SECRET,
-    { expiresIn: "1d" }
-  );
+    const accessToken = jwt.sign(
+      { userId: user.id, email: user.email },
+      JWT_SECRET,
+      { expiresIn: "15m" }
+    );
+    const refreshToken = jwt.sign(
+      { userId: user.id, email: user.email },
+      JWT_REFRESH_SECRET,
+      { expiresIn: "1d" }
+    );
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -108,7 +109,9 @@ router.post("/", loginLimiter, async (req, res) => {
   } catch (error) {
     // Ne pas exposer les détails de l'erreur en production
     logger.error("Login error:", error);
-    return res.status(500).json({ error: "An error occurred. Please try again." });
+    return res
+      .status(500)
+      .json({ error: "An error occurred. Please try again." });
   }
 });
 

@@ -10,6 +10,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpecs = require("./utils/swagger/swagger");
+const helmet = require("helmet");
 
 const app = express();
 const prisma = new PrismaClient();
@@ -29,6 +30,10 @@ if (process.env.NODE_ENV === "production" && !process.env.TRUSTED_PROXY_IPS) {
 }
 
 app.set("trust proxy", trustedProxyIps);
+
+// Helmet ajoute un ensemble de headers de sécurité côté navigateur
+// Configuration simple pour ne pas casser Swagger ni le frontend
+app.use(helmet());
 
 // FRONTEND_URL est validé par env-validator.js (requis en production)
 // En développement, on utilise une valeur par défaut si non défini
