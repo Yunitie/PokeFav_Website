@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { loginLimiter } = require("../../../config/rate-limiter");
 const logger = require("../../../utils/logger");
+const { asyncHandler } = require("../../../utils/async-handler");
 
 const router = express.Router();
 
@@ -63,7 +64,10 @@ if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post("/", loginLimiter, async (req, res) => {
+router.post(
+  "/",
+  loginLimiter,
+  asyncHandler(async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -109,10 +113,10 @@ router.post("/", loginLimiter, async (req, res) => {
   } catch (error) {
     // Ne pas exposer les détails de l'erreur en production
     logger.error("Login error:", error);
-    return res
-      .status(500)
-      .json({ error: "An error occurred. Please try again." });
+    // Laisser le middleware global gérer la réponse générique
+    throw error;
   }
-});
+  })
+);
 
 module.exports = router;

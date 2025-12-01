@@ -1,5 +1,6 @@
 const express = require("express");
 const { prisma } = require("../../prisma");
+const { asyncHandler } = require("../../utils/async-handler");
 
 const router = express.Router();
 
@@ -28,9 +29,12 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get("/", async (req, res) => {
-  const users = await prisma.user.findMany();
-  return res.json(users);
-});
+router.get(
+  "/",
+  asyncHandler(async (req, res) => {
+    const users = await prisma.user.findMany();
+    return res.json(users);
+  })
+);
 
 module.exports = router;

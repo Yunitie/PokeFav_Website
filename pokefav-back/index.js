@@ -5,7 +5,7 @@ const { validateEnv } = require("./config/env-validator");
 validateEnv();
 
 const express = require("express");
-const { PrismaClient } = require("@prisma/client");
+const { PrismaClient, Prisma } = require("@prisma/client");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const swaggerUi = require("swagger-ui-express");
@@ -96,10 +96,34 @@ app.use("/api/pokemon/rank", pokemonRankRouter);
 app.use("/api/pokemon", pokemonByIdRouter);
 app.use("/api/share/user", shareUserRouter);
 
-// Middleware d'erreur basique
+// Middleware d'erreur centralisé (inclut les erreurs Prisma)
 const logger = require("./utils/logger");
 app.use((err, req, res, next) => {
   logger.error(err);
+
+  // Erreurs connues Prisma (ex: contraintes d'unicité, problèmes de relation, etc.)
+  if (err instanceof Prisma.PrismaClientKnownRequestError) {
+    // P2002: contrainte d'unicité violée (email, etc.)
+    if (err.code === "P2002") {
+      return res.status(409).json({
+        error: "A resource with the same unique value already exists.",
+      });
+    }
+
+    // Pour les autres codes Prisma connus, on reste générique mais explicite
+    return res.status(400).json({
+      error: "A database error occurred. Please try again.",
+    });
+  }
+
+  // Erreurs Prisma de validation côté client (schéma, types...)
+  if (err instanceof Prisma.PrismaClientValidationError) {
+    return res.status(400).json({
+      error: "Invalid data provided.",
+    });
+  }
+
+  // Fallback générique
   res.status(500).json({ error: "Server error" });
 });
 

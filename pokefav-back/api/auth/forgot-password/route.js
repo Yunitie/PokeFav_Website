@@ -6,6 +6,7 @@ const { sendMail } = require("../../../utils/mailer");
 const logger = require("../../../utils/logger");
 const { forgotPasswordLimiter } = require("../../../config/rate-limiter");
 const { validateEmail } = require("../../../utils/email-validator");
+const { asyncHandler } = require("../../../utils/async-handler");
 
 // Création d'un nouveau routeur Express
 const router = express.Router();
@@ -47,8 +48,10 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post("/", forgotPasswordLimiter, async (req, res) => {
-  try {
+router.post(
+  "/",
+  forgotPasswordLimiter,
+  asyncHandler(async (req, res) => {
     logger.debug("=== Forgot password request started ===");
     logger.debug("Environment variables:", {
       EMAIL_USER: process.env.EMAIL_USER ? "Defined" : "Missing",
@@ -128,12 +131,8 @@ router.post("/", forgotPasswordLimiter, async (req, res) => {
     logger.debug("=== Forgot password request completed ===");
     // Réponse générique pour ne pas révéler si l'email existe ou non
     return res.json({ message: "Si un compte existe, un email a été envoyé." });
-  } catch (error) {
-    logger.error("General error in forgot-password:", error.message);
-    logger.error("Stack trace:", error.stack);
-    return res.status(500).json({ error: "Erreur serveur interne." });
-  }
-});
+  })
+);
 
 // Export du routeur pour l'utiliser dans l'application principale
 module.exports = router;
