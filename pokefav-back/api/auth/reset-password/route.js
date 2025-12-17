@@ -63,14 +63,14 @@ router.post(
   "/",
   resetPasswordLimiter,
   asyncHandler(async (req, res) => {
-    // Récupération des données depuis le corps de la requête
-    const { email, token, newPassword } = req.body;
-    if (!email || !token || !newPassword) {
-      // Vérification des champs obligatoires
-      return res
-        .status(400)
-        .json({ error: "Email, token et nouveau mot de passe requis." });
-    }
+  // Récupération des données depuis le corps de la requête
+  const { email, token, newPassword } = req.body;
+  if (!email || !token || !newPassword) {
+    // Vérification des champs obligatoires
+    return res
+      .status(400)
+      .json({ error: "Email, token et nouveau mot de passe requis." });
+  }
 
     // Validation du format de l'email
     const emailValidation = validateEmail(email);
@@ -84,34 +84,34 @@ router.post(
       return res.status(400).json({ error });
     }
 
-    // Recherche de l'utilisateur correspondant à l'email et au token
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (
-      !user ||
-      !user.resetPasswordToken ||
-      user.resetPasswordToken !== token ||
-      !user.resetPasswordTokenExpiry ||
-      user.resetPasswordTokenExpiry < new Date()
-    ) {
-      // Si l'utilisateur n'existe pas, ou le token est invalide/expiré
-      return res
-        .status(400)
-        .json({ error: "Lien de réinitialisation invalide ou expiré." });
-    }
-    // Hachage du nouveau mot de passe
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    // Mise à jour du mot de passe et suppression du token de réinitialisation
-    await prisma.user.update({
-      where: { email },
-      data: {
-        password: hashedPassword,
-        resetPasswordToken: null,
-        resetPasswordTokenExpiry: null,
-      },
-    });
+  // Recherche de l'utilisateur correspondant à l'email et au token
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (
+    !user ||
+    !user.resetPasswordToken ||
+    user.resetPasswordToken !== token ||
+    !user.resetPasswordTokenExpiry ||
+    user.resetPasswordTokenExpiry < new Date()
+  ) {
+    // Si l'utilisateur n'existe pas, ou le token est invalide/expiré
+    return res
+      .status(400)
+      .json({ error: "Lien de réinitialisation invalide ou expiré." });
+  }
+  // Hachage du nouveau mot de passe
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  // Mise à jour du mot de passe et suppression du token de réinitialisation
+  await prisma.user.update({
+    where: { email },
+    data: {
+      password: hashedPassword,
+      resetPasswordToken: null,
+      resetPasswordTokenExpiry: null,
+    },
+  });
 
-    // Réponse de succès
-    return res.json({ message: "Mot de passe réinitialisé avec succès." });
+  // Réponse de succès
+  return res.json({ message: "Mot de passe réinitialisé avec succès." });
   })
 );
 

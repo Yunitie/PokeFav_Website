@@ -51,11 +51,11 @@ router.post(
   "/",
   registerLimiter,
   asyncHandler(async (req, res) => {
-    const { email, password, displayName } = req.body;
+  const { email, password, displayName } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email et mot de passe requis." });
-    }
+  if (!email || !password) {
+    return res.status(400).json({ error: "Email et mot de passe requis." });
+  }
 
     // Validation du format de l'email
     const emailValidation = validateEmail(email);
@@ -69,26 +69,26 @@ router.post(
       return res.status(400).json({ error });
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      return res.status(409).json({ error: "Cet email est déjà utilisé." });
-    }
+  const existingUser = await prisma.user.findUnique({ where: { email } });
+  if (existingUser) {
+    return res.status(409).json({ error: "Cet email est déjà utilisé." });
+  }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        displayName,
-      },
-    });
+  const user = await prisma.user.create({
+    data: {
+      email,
+      password: hashedPassword,
+      displayName,
+    },
+  });
 
-    return res.json({
-      id: user.id,
-      email: user.email,
-      displayName: user.displayName,
-    });
+  return res.json({
+    id: user.id,
+    email: user.email,
+    displayName: user.displayName,
+  });
   })
 );
 

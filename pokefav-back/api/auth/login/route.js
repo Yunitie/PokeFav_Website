@@ -69,11 +69,11 @@ router.post(
   loginLimiter,
   asyncHandler(async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password required." });
-    }
-    const user = await prisma.user.findUnique({ where: { email } });
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: "Email and password required." });
+  }
+  const user = await prisma.user.findUnique({ where: { email } });
 
     // Ne révèle pas si l'utilisateur existe ou non (sécurité)
     // Toujours faire le hash même si l'utilisateur n'existe pas pour éviter timing attacks
@@ -84,32 +84,32 @@ router.post(
     if (!user || !passwordMatch) {
       // Message générique pour ne pas révéler si l'email existe
       return res.status(401).json({ error: "Incorrect email or password." });
-    }
-    const accessToken = jwt.sign(
-      { userId: user.id, email: user.email },
-      JWT_SECRET,
-      { expiresIn: "15m" }
-    );
-    const refreshToken = jwt.sign(
-      { userId: user.id, email: user.email },
-      JWT_REFRESH_SECRET,
-      { expiresIn: "1d" }
-    );
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 1 * 1000, // 1 jour en ms
-    });
-    return res.json({
-      accessToken,
-      user: {
-        id: user.id,
-        email: user.email,
-        displayName: user.displayName,
-      },
-    });
+  }
+  const accessToken = jwt.sign(
+    { userId: user.id, email: user.email },
+    JWT_SECRET,
+    { expiresIn: "15m" }
+  );
+  const refreshToken = jwt.sign(
+    { userId: user.id, email: user.email },
+    JWT_REFRESH_SECRET,
+    { expiresIn: "1d" }
+  );
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 1 * 1000, // 1 jour en ms
+  });
+  return res.json({
+    accessToken,
+    user: {
+      id: user.id,
+      email: user.email,
+      displayName: user.displayName,
+    },
+  });
   } catch (error) {
     // Ne pas exposer les détails de l'erreur en production
     logger.error("Login error:", error);
