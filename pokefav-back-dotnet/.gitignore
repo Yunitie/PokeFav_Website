@@ -1,1 +1,10 @@
+# Fichier de configuration local (secrets)
 appsettings.Development.local.json
+
+# Build results
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.cache

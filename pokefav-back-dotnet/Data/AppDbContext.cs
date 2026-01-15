@@ -25,6 +25,20 @@ public class AppDbContext : DbContext
             // Table "User" (singulier) pour coller à la BDD existante
             entity.ToTable("User");
             entity.HasKey(e => e.Id);
+            
+            // Mapper les colonnes en minuscules (comme Prisma les crée)
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Email).HasColumnName("email");
+            entity.Property(e => e.Password).HasColumnName("password");
+            entity.Property(e => e.CreatedAt).HasColumnName("createdAt");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updatedAt");
+            entity.Property(e => e.DisplayName).HasColumnName("displayName");
+            entity.Property(e => e.Avatar).HasColumnName("avatar");
+            entity.Property(e => e.IsVerified).HasColumnName("isVerified");
+            entity.Property(e => e.ResetPasswordToken).HasColumnName("resetPasswordToken");
+            entity.Property(e => e.ResetPasswordTokenExpiry).HasColumnName("resetPasswordTokenExpiry");
+            entity.Property(e => e.PublicId).HasColumnName("publicId");
+            
             entity.HasIndex(e => e.Email).IsUnique();
             entity.HasIndex(e => e.PublicId).IsUnique();
             entity.Property(e => e.PublicId).HasDefaultValueSql("gen_random_uuid()");
