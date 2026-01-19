@@ -1,4 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using PokeFav.Api.DTOs;
 using PokeFav.Api.Services;
 
@@ -104,6 +108,110 @@ public class AuthController : ControllerBase
             // Identifiants incorrects
             return Unauthorized(new { error = ex.Message });
         }
+    }
+
+    /// <summary>
+    /// Rafraîchir le token d'accès à partir du refresh token stocké en cookie
+    /// POST /api/auth/refresh
+    /// </summary>
+    [HttpPost("refresh")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
+    public IActionResult RefreshAccessToken()
+    {
+        // Récupérer le refresh token depuis les cookies (même logique que Node.js)
+        if (!Request.Cookies.TryGetValue("refreshToken", out var refreshToken) || string.IsNullOrWhiteSpace(refreshToken))
+        {
+            return BadRequest(new { error = "Refresh token missing." });
+        }
+
+        var jwtSecret = _configuration["Jwt:Secret"];
+        var jwtRefreshSecret = _configuration["Jwt:RefreshSecret"];
+
+        if (string.IsNullOrWhiteSpace(jwtSecret) || string.IsNullOrWhiteSpace(jwtRefreshSecret))
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Server configuration error" });
+        }
+
+        try
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var refreshKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtRefreshSecret));
+
+            tokenHandler.ValidateToken(refreshToken, new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = refreshKey,
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            }, out var validatedToken);
+
+            var jwtToken = (JwtSecurityToken)validatedToken;
+            var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            var emailClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
+
+            if (userIdClaim == null || emailClaim == null)
+            {
+                return Unauthorized(new { error = "Invalid or expired refresh token." });
+            }
+
+            // Générer un nouveau access token (15 minutes) avec les mêmes infos que LoginAsync
+            var accessKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
+            var credentials = new SigningCredentials(accessKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, userIdClaim.Value),
+                new Claim(ClaimTypes.Email, emailClaim.Value),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            var accessToken = new JwtSecurityToken(
+                issuer: null,
+                audience: null,
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(15),
+                signingCredentials: credentials
+            );
+
+            var accessTokenString = new JwtSecurityTokenHandler().WriteToken(accessToken);
+
+            return Ok(new { accessToken = accessTokenString });
+        }
+        catch (SecurityTokenException)
+        {
+            return Unauthorized(new { error = "Invalid or expired refresh token." });
+        }
+        catch (Exception)
+        {
+            // Par sécurité, on ne renvoie pas le détail de l'erreur
+            return Unauthorized(new { error = "Invalid or expired refresh token." });
+        }
+    }
+
+    /// <summary>
+    /// Déconnexion utilisateur : supprime le cookie refreshToken
+    /// POST /api/auth/logout
+    /// </summary>
+    [HttpPost("logout")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    public IActionResult Logout()
+    {
+        var requireHttps = _configuration.GetValue<bool>("Jwt:RequireHttps", false)
+                           || !HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment();
+
+        Response.Cookies.Delete("refreshToken", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = requireHttps,
+            SameSite = SameSiteMode.Strict,
+            Path = "/"
+        });
+
+        return Ok(new { message = "Déconnexion réussie." });
     }
 }
 
