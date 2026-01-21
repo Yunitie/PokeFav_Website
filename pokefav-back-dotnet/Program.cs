@@ -79,8 +79,9 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.WriteIndented = true;
     });
 
-// Services : enregistrer AuthService dans le conteneur d'injection de dépendances
+// Services : enregistrer AuthService et EmailService dans le conteneur d'injection de dépendances
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Configuration JWT Authentication
 var jwtSecret = builder.Configuration["Jwt:Secret"];

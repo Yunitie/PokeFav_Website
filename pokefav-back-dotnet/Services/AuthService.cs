@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,18 +20,22 @@ public interface IAuthService
 {
     Task<RegisterResponse> RegisterAsync(RegisterRequest request);
     Task<AuthResponse> LoginAsync(LoginRequest request);
+    Task ForgotPasswordAsync(string email);
+    Task ResetPasswordAsync(string email, string token, string newPassword);
 }
 
 public class AuthService : IAuthService
 {
     private readonly AppDbContext _dbContext;
     private readonly IConfiguration _configuration;
+    private readonly IEmailService _emailService;
     private const int BcryptWorkFactor = 10; // Même coût qu'en Node.js
 
-    public AuthService(AppDbContext dbContext, IConfiguration configuration)
+    public AuthService(AppDbContext dbContext, IConfiguration configuration, IEmailService emailService)
     {
         _dbContext = dbContext;
         _configuration = configuration;
+        _emailService = emailService;
     }
 
     /// <summary>
@@ -123,6 +128,107 @@ public class AuthService : IAuthService
                 DisplayName = user.DisplayName
             }
         };
+    }
+
+    /// <summary>
+    /// Demande de réinitialisation de mot de passe.
+    /// </summary>
+    public async Task ForgotPasswordAsync(string email)
+    {
+        // Validation email
+        var (emailValid, emailError, normalizedEmail) = EmailValidator.Validate(email);
+        if (!emailValid || normalizedEmail == null)
+        {
+            throw new ArgumentException(emailError ?? "Invalid email.");
+        }
+
+        // Chercher l'utilisateur
+        var user = await _dbContext.Users
+            .FirstOrDefaultAsync(u => u.Email == normalizedEmail);
+
+        // Sécurité : ne jamais révéler si l'utilisateur existe ou non
+        if (user == null)
+        {
+            // On s'arrête là, la réponse du contrôleur sera la même
+            return;
+        }
+
+        // Générer un token sécurisé (32 octets aléatoires, encodés en base64)
+        var tokenBytes = RandomNumberGenerator.GetBytes(32);
+        var token = Convert.ToBase64String(tokenBytes);
+
+        // Date d'expiration (ex : 1 heure)
+        var expiresAt = DateTime.UtcNow.AddHours(1);
+
+        user.ResetPasswordToken = token;
+        user.ResetPasswordTokenExpiry = expiresAt;
+
+        await _dbContext.SaveChangesAsync();
+
+        // Construire le lien de reset vers le front
+        var frontendUrl = _configuration["Frontend:Url"] ?? "http://localhost:3000";
+        var encodedEmail = Uri.EscapeDataString(normalizedEmail);
+        var encodedToken = Uri.EscapeDataString(token);
+
+        var resetLink = $"{frontendUrl}/reset-password?email={encodedEmail}&token={encodedToken}";
+
+        // Envoyer l'email via le service dédié
+        await _emailService.SendPasswordResetEmailAsync(normalizedEmail, resetLink);
+    }
+
+    /// <summary>
+    /// Réinitialisation de mot de passe à partir d'un token valide.
+    /// </summary>
+    public async Task ResetPasswordAsync(string email, string token, string newPassword)
+    {
+        // Important : le token peut arriver encodé en URL (depuis le lien de l'email)
+        // On le décode systématiquement pour le comparer à la valeur stockée en base.
+        var decodedToken = Uri.UnescapeDataString(token);
+
+        // Validation email
+        var (emailValid, emailError, normalizedEmail) = EmailValidator.Validate(email);
+        if (!emailValid || normalizedEmail == null)
+        {
+            throw new ArgumentException(emailError ?? "Invalid email.");
+        }
+
+        // Validation mot de passe
+        var (passwordValid, passwordError) = PasswordValidator.Validate(newPassword);
+        if (!passwordValid)
+        {
+            throw new ArgumentException(passwordError ?? "Invalid password.");
+        }
+
+        // Chercher l'utilisateur
+        var user = await _dbContext.Users
+            .FirstOrDefaultAsync(u => u.Email == normalizedEmail);
+
+        // Vérifier la validité du token
+        var now = DateTime.UtcNow;
+        var hasValidToken =
+            user != null &&
+            !string.IsNullOrWhiteSpace(user.ResetPasswordToken) &&
+            string.Equals(user.ResetPasswordToken, decodedToken, StringComparison.Ordinal) &&
+            user.ResetPasswordTokenExpiry.HasValue &&
+            user.ResetPasswordTokenExpiry.Value >= now;
+
+        if (!hasValidToken)
+        {
+            // Message générique pour éviter de donner des indices
+            throw new InvalidOperationException("Invalid or expired password reset link.");
+        }
+
+        // À partir d'ici, user ne peut plus être null grâce au test précédent
+
+        // Mettre à jour le mot de passe (hashé)
+        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(newPassword, BcryptWorkFactor);
+        user!.Password = hashedPassword;
+
+        // Invalider le token (one-time)
+        user.ResetPasswordToken = null;
+        user.ResetPasswordTokenExpiry = null;
+
+        await _dbContext.SaveChangesAsync();
     }
 
     /// <summary>

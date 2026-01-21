@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using PokeFav.Api.DTOs;
 using PokeFav.Api.Services;
 
@@ -212,6 +212,68 @@ public class AuthController : ControllerBase
         });
 
         return Ok(new { message = "Déconnexion réussie." });
+    }
+
+    /// <summary>
+    /// Demande de réinitialisation de mot de passe.
+    /// POST /api/auth/forgot-password
+    /// </summary>
+    [HttpPost("forgot-password")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+    {
+        // Validation des Data Annotations
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        try
+        {
+            await _authService.ForgotPasswordAsync(request.Email);
+
+            // Réponse générique, même si l'utilisateur n'existe pas
+            return Ok(new { message = "If an account with this email exists, a reset link has been sent." });
+        }
+        catch (ArgumentException ex)
+        {
+            // Erreur de validation (email invalide)
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Réinitialisation de mot de passe.
+    /// POST /api/auth/reset-password
+    /// </summary>
+    [HttpPost("reset-password")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+    {
+        // Validation des Data Annotations
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        try
+        {
+            await _authService.ResetPasswordAsync(request.Email, request.Token, request.NewPassword);
+
+            return Ok(new { message = "Password has been reset successfully." });
+        }
+        catch (ArgumentException ex)
+        {
+            // Erreurs de validation (email/password)
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Token invalide/expiré
+            return BadRequest(new { error = ex.Message });
+        }
     }
 }
 
