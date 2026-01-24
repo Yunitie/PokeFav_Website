@@ -79,9 +79,10 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.WriteIndented = true;
     });
 
-// Services : enregistrer AuthService et EmailService dans le conteneur d'injection de dépendances
+// Services : enregistrer AuthService, EmailService et PokemonService dans le conteneur d'injection de dépendances
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IPokemonService, PokemonService>();
 
 // Configuration JWT Authentication
 var jwtSecret = builder.Configuration["Jwt:Secret"];

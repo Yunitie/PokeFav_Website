@@ -51,6 +51,19 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("Pokemon");
             entity.HasKey(e => e.Id);
+            
+            // Mapper les colonnes en camelCase (comme Prisma les crée)
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.PokedexId).HasColumnName("pokedexId");
+            entity.Property(e => e.Name).HasColumnName("name");
+            entity.Property(e => e.ArtworkUrl).HasColumnName("artworkUrl");
+            entity.Property(e => e.Type1).HasColumnName("type1");
+            entity.Property(e => e.Type2).HasColumnName("type2");
+            entity.Property(e => e.Generation).HasColumnName("generation");
+            entity.Property(e => e.Height).HasColumnName("height");
+            entity.Property(e => e.Weight).HasColumnName("weight");
+            entity.Property(e => e.StatsId).HasColumnName("statsId");
+            
             entity.HasIndex(e => e.StatsId).IsUnique();
             entity.HasOne(e => e.Stats)
                   .WithOne(s => s.Pokemon)
@@ -63,6 +76,15 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("PokemonStats");
             entity.HasKey(e => e.Id);
+            
+            // Mapper les colonnes en camelCase (comme Prisma les crée)
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Hp).HasColumnName("hp");
+            entity.Property(e => e.Attack).HasColumnName("attack");
+            entity.Property(e => e.Defense).HasColumnName("defense");
+            entity.Property(e => e.SpecialAttack).HasColumnName("specialAttack");
+            entity.Property(e => e.SpecialDefense).HasColumnName("specialDefense");
+            entity.Property(e => e.Speed).HasColumnName("speed");
         });
 
         // Configuration PokemonRank (table de liaison many-to-many)
@@ -70,6 +92,15 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("PokemonRank");
             entity.HasKey(e => e.Id);
+            
+            // Mapper les colonnes en camelCase (comme Prisma les crée)
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.UserId).HasColumnName("userId");
+            entity.Property(e => e.PokemonId).HasColumnName("pokemonId");
+            entity.Property(e => e.Score).HasColumnName("score");
+            entity.Property(e => e.CreatedAt).HasColumnName("createdAt");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updatedAt");
+            
             entity.HasIndex(e => new { e.UserId, e.PokemonId }).IsUnique(); // Contrainte unique sur (userId, pokemonId)
             entity.HasIndex(e => e.UserId);
             entity.HasIndex(e => new { e.UserId, e.Score });
@@ -87,7 +118,11 @@ public class AppDbContext : DbContext
                   .OnDelete(DeleteBehavior.Cascade);
 
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.CreatedAt).ValueGeneratedOnAdd();
+            
+            // UpdatedAt doit être défini manuellement dans le code, pas par la base de données
             entity.Property(e => e.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            // Ne pas utiliser ValueGeneratedOnAddOrUpdate() car EF Core ne l'inclut pas dans l'INSERT
         });
     }
 }
