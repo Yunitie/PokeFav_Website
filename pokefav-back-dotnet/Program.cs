@@ -1,10 +1,14 @@
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PokeFav.Api.Data;
+using PokeFav.Api.Middleware;
 using PokeFav.Api.Services;
 using System.Text;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -120,6 +124,71 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString);
 });
 
+// Rate limiting : protection contre force brute et spam (comme le backend Node.js)
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.OnRejected = async (context, token) =>
+    {
+        var path = context.HttpContext.Request.Path.Value ?? "";
+        var (error, retryAfter) = path switch
+        {
+            var p when p.Contains("login", StringComparison.OrdinalIgnoreCase) => ("Too many login attempts. Please wait and try again in 15 minutes.", "15 minutes"),
+            var p when p.Contains("register", StringComparison.OrdinalIgnoreCase) => ("Too many registration attempts. Please wait and try again in 1 hour.", "1 hour"),
+            var p when p.Contains("forgot-password", StringComparison.OrdinalIgnoreCase) => ("Too many password reset requests. Please wait and try again in 1 hour.", "1 hour"),
+            var p when p.Contains("reset-password", StringComparison.OrdinalIgnoreCase) => ("Too many password reset attempts. Please wait and try again in 15 minutes.", "15 minutes"),
+            _ => ("Too many requests. Please wait and try again in a few minutes.", "a few minutes")
+        };
+
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        context.HttpContext.Response.ContentType = "application/json; charset=utf-8";
+        await context.HttpContext.Response.WriteAsync(
+            JsonSerializer.Serialize(new { error, retryAfter }),
+            token);
+    };
+
+    // Login : 5 tentatives / 15 min par IP
+    options.AddPolicy("login", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(15)
+            }));
+
+    // Register : 3 inscriptions / 1 h par IP
+    options.AddPolicy("register", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 3,
+                Window = TimeSpan.FromHours(1)
+            }));
+
+    // Forgot-password : 3 demandes / 1 h par IP
+    options.AddPolicy("forgot-password", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 3,
+                Window = TimeSpan.FromHours(1)
+            }));
+
+    // Reset-password : 5 tentatives / 15 min par IP
+    options.AddPolicy("reset-password", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(15)
+            }));
+});
+
 var app = builder.Build();
 
 // ---------------------------------------------------------------------------
@@ -141,6 +210,12 @@ app.UseHttpsRedirection();
 
 // Routing explicite (important pour que les controllers fonctionnent)
 app.UseRouting();
+
+// Rate limiting (doit être après UseRouting pour avoir accès au endpoint)
+app.UseRateLimiter();
+
+// Middleware global de gestion d'erreurs (doit être avant Authentication/Authorization)
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 // CORS doit être placé après UseRouting mais avant Authentication
 app.UseCors("FrontendPolicy");

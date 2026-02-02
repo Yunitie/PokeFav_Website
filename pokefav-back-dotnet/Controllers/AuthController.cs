@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using PokeFav.Api.DTOs;
 using PokeFav.Api.Services;
@@ -29,6 +30,7 @@ public class AuthController : ControllerBase
     /// POST /api/auth/register
     /// </summary>
     [HttpPost("register")]
+    [EnableRateLimiting("register")]
     [ProducesResponseType(typeof(RegisterResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
@@ -62,6 +64,7 @@ public class AuthController : ControllerBase
     /// POST /api/auth/login
     /// </summary>
     [HttpPost("login")]
+    [EnableRateLimiting("login")]
     [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
@@ -219,6 +222,7 @@ public class AuthController : ControllerBase
     /// POST /api/auth/forgot-password
     /// </summary>
     [HttpPost("forgot-password")]
+    [EnableRateLimiting("forgot-password")]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
@@ -248,6 +252,7 @@ public class AuthController : ControllerBase
     /// POST /api/auth/reset-password
     /// </summary>
     [HttpPost("reset-password")]
+    [EnableRateLimiting("reset-password")]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
