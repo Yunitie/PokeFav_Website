@@ -33,7 +33,7 @@ public class PokemonController : ControllerBase
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
         if (id <= 0)
         {
@@ -42,7 +42,7 @@ public class PokemonController : ControllerBase
 
         try
         {
-            var pokemon = await _pokemonService.GetByIdAsync(id);
+            var pokemon = await _pokemonService.GetByIdAsync(id, cancellationToken);
             if (pokemon == null)
             {
                 return NotFound(new { error = "Pokémon non trouvé" });
@@ -64,7 +64,7 @@ public class PokemonController : ControllerBase
     [ProducesResponseType(typeof(PokemonDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetRandom([FromQuery] string? generations = null)
+    public async Task<IActionResult> GetRandom([FromQuery] string? generations = null, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -79,7 +79,7 @@ public class PokemonController : ControllerBase
                     .ToList();
             }
 
-            var pokemon = await _pokemonService.GetRandomAsync(generationList);
+            var pokemon = await _pokemonService.GetRandomAsync(generationList, cancellationToken);
             if (pokemon == null)
             {
                 var errorMessage = generationList != null && generationList.Count > 0
@@ -105,30 +105,24 @@ public class PokemonController : ControllerBase
     [ProducesResponseType(typeof(List<RankedPokemonDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetRanking()
+    public async Task<IActionResult> GetRanking(CancellationToken cancellationToken)
     {
-        // Récupérer le refresh token depuis les cookies
-        if (!Request.Cookies.TryGetValue("refreshToken", out var refreshToken) || string.IsNullOrWhiteSpace(refreshToken))
-        {
-            return Unauthorized(new { error = "Unauthorized" });
-        }
-
-        var jwtRefreshSecret = _configuration["Jwt:RefreshSecret"];
-        if (string.IsNullOrWhiteSpace(jwtRefreshSecret))
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Server configuration error" });
-        }
-
-        // Extraire le userId depuis le refresh token
-        var userId = TokenHelper.GetUserIdFromRefreshToken(refreshToken, jwtRefreshSecret);
+        // Récupérer le userId depuis la requête (authentification centralisée)
+        var userId = TokenHelper.GetUserIdFromRequest(Request, _configuration);
         if (userId == null)
         {
+            // Vérifier si c'est un problème de configuration serveur
+            var jwtRefreshSecret = _configuration["Jwt:RefreshSecret"];
+            if (string.IsNullOrWhiteSpace(jwtRefreshSecret))
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Server configuration error" });
+            }
             return Unauthorized(new { error = "Unauthorized" });
         }
 
         try
         {
-            var ranking = await _pokemonService.GetRankingAsync(userId.Value);
+            var ranking = await _pokemonService.GetRankingAsync(userId.Value, cancellationToken);
             return Ok(ranking);
         }
         catch (Exception)
@@ -146,24 +140,18 @@ public class PokemonController : ControllerBase
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> UpdateRank([FromBody] UpdateRankRequest request)
+    public async Task<IActionResult> UpdateRank([FromBody] UpdateRankRequest request, CancellationToken cancellationToken)
     {
-        // Récupérer le refresh token depuis les cookies
-        if (!Request.Cookies.TryGetValue("refreshToken", out var refreshToken) || string.IsNullOrWhiteSpace(refreshToken))
-        {
-            return Unauthorized(new { error = "Unauthorized" });
-        }
-
-        var jwtRefreshSecret = _configuration["Jwt:RefreshSecret"];
-        if (string.IsNullOrWhiteSpace(jwtRefreshSecret))
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Server configuration error" });
-        }
-
-        // Extraire le userId depuis le refresh token
-        var userId = TokenHelper.GetUserIdFromRefreshToken(refreshToken, jwtRefreshSecret);
+        // Récupérer le userId depuis la requête (authentification centralisée)
+        var userId = TokenHelper.GetUserIdFromRequest(Request, _configuration);
         if (userId == null)
         {
+            // Vérifier si c'est un problème de configuration serveur
+            var jwtRefreshSecret = _configuration["Jwt:RefreshSecret"];
+            if (string.IsNullOrWhiteSpace(jwtRefreshSecret))
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Server configuration error" });
+            }
             return Unauthorized(new { error = "Unauthorized" });
         }
 
@@ -178,7 +166,8 @@ public class PokemonController : ControllerBase
             var response = await _pokemonService.UpdateRankAsync(
                 userId.Value,
                 request.ClickedPokemonId,
-                request.VisiblePokemonIds
+                request.VisiblePokemonIds,
+                cancellationToken
             );
 
             return Ok(response);

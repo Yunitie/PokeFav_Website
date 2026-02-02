@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -52,5 +54,30 @@ public static class TokenHelper
             // Token invalide ou expiré
             return null;
         }
+    }
+
+    /// <summary>
+    /// Récupère le userId depuis la requête HTTP (cookie refreshToken)
+    /// Centralise la logique d'authentification répétée dans les controllers
+    /// </summary>
+    /// <param name="request">La requête HTTP</param>
+    /// <param name="configuration">La configuration pour récupérer le JWT secret</param>
+    /// <returns>Le userId si authentifié, null sinon</returns>
+    public static int? GetUserIdFromRequest(HttpRequest request, IConfiguration configuration)
+    {
+        // Récupérer le refresh token depuis les cookies
+        if (!request.Cookies.TryGetValue("refreshToken", out var refreshToken) || string.IsNullOrWhiteSpace(refreshToken))
+        {
+            return null; // Pas authentifié
+        }
+
+        var jwtRefreshSecret = configuration["Jwt:RefreshSecret"];
+        if (string.IsNullOrWhiteSpace(jwtRefreshSecret))
+        {
+            return null; // Configuration invalide (sera géré par le controller avec une erreur 500)
+        }
+
+        // Extraire le userId depuis le refresh token
+        return GetUserIdFromRefreshToken(refreshToken, jwtRefreshSecret);
     }
 }

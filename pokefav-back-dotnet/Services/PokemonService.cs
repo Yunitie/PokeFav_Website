@@ -11,10 +11,10 @@ namespace PokeFav.Api.Services;
 /// </summary>
 public interface IPokemonService
 {
-    Task<PokemonDto?> GetByIdAsync(int pokemonId);
-    Task<PokemonDto?> GetRandomAsync(List<string>? generations = null);
-    Task<List<RankedPokemonDto>> GetRankingAsync(int userId);
-    Task<UpdateRankResponse> UpdateRankAsync(int userId, int clickedPokemonId, List<int> visiblePokemonIds);
+    Task<PokemonDto?> GetByIdAsync(int pokemonId, CancellationToken cancellationToken = default);
+    Task<PokemonDto?> GetRandomAsync(List<string>? generations = null, CancellationToken cancellationToken = default);
+    Task<List<RankedPokemonDto>> GetRankingAsync(int userId, CancellationToken cancellationToken = default);
+    Task<UpdateRankResponse> UpdateRankAsync(int userId, int clickedPokemonId, List<int> visiblePokemonIds, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -34,11 +34,11 @@ public class PokemonService : IPokemonService
     /// <summary>
     /// Récupère un Pokemon par son ID avec ses statistiques
     /// </summary>
-    public async Task<PokemonDto?> GetByIdAsync(int pokemonId)
+    public async Task<PokemonDto?> GetByIdAsync(int pokemonId, CancellationToken cancellationToken = default)
     {
         var pokemon = await _dbContext.Pokemons
             .Include(p => p.Stats)
-            .FirstOrDefaultAsync(p => p.Id == pokemonId);
+            .FirstOrDefaultAsync(p => p.Id == pokemonId, cancellationToken);
 
         if (pokemon == null)
         {
@@ -51,7 +51,7 @@ public class PokemonService : IPokemonService
     /// <summary>
     /// Récupère un Pokemon aléatoire (avec filtre optionnel par générations)
     /// </summary>
-    public async Task<PokemonDto?> GetRandomAsync(List<string>? generations = null)
+    public async Task<PokemonDto?> GetRandomAsync(List<string>? generations = null, CancellationToken cancellationToken = default)
     {
         // Construire le filtre de génération si fourni
         var query = _dbContext.Pokemons.AsQueryable();
@@ -61,7 +61,7 @@ public class PokemonService : IPokemonService
         }
 
         // Compter le total de Pokemon correspondants
-        var totalPokemon = await query.CountAsync();
+        var totalPokemon = await query.CountAsync(cancellationToken);
         if (totalPokemon == 0)
         {
             return null;
@@ -74,7 +74,7 @@ public class PokemonService : IPokemonService
         var randomPokemon = await query
             .Include(p => p.Stats)
             .Skip(randomOffset)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (randomPokemon == null)
         {
@@ -87,14 +87,14 @@ public class PokemonService : IPokemonService
     /// <summary>
     /// Récupère le classement complet d'un utilisateur (trié par score décroissant)
     /// </summary>
-    public async Task<List<RankedPokemonDto>> GetRankingAsync(int userId)
+    public async Task<List<RankedPokemonDto>> GetRankingAsync(int userId, CancellationToken cancellationToken = default)
     {
         var ranks = await _dbContext.PokemonRanks
             .Where(r => r.UserId == userId)
             .OrderByDescending(r => r.Score)
             .Include(r => r.Pokemon)
                 .ThenInclude(p => p.Stats)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return ranks.Select(r => new RankedPokemonDto
         {
@@ -107,7 +107,7 @@ public class PokemonService : IPokemonService
     /// Met à jour le classement d'un Pokemon pour un utilisateur
     /// Logique : le Pokemon cliqué obtient un score = max(autres visibles) + 1
     /// </summary>
-    public async Task<UpdateRankResponse> UpdateRankAsync(int userId, int clickedPokemonId, List<int> visiblePokemonIds)
+    public async Task<UpdateRankResponse> UpdateRankAsync(int userId, int clickedPokemonId, List<int> visiblePokemonIds, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -128,14 +128,14 @@ public class PokemonService : IPokemonService
                 var maxScore = await _dbContext.PokemonRanks
                     .Where(r => r.UserId == userId && otherVisibleIds.Contains(r.PokemonId))
                     .Select(r => (int?)r.Score)
-                    .MaxAsync();
+                    .MaxAsync(cancellationToken);
 
                 targetScore = (maxScore ?? 0) + 1;
             }
 
             // Chercher l'entrée existante (contrainte unique sur userId + pokemonId)
             var existing = await _dbContext.PokemonRanks
-                .FirstOrDefaultAsync(r => r.UserId == userId && r.PokemonId == clickedPokemonId);
+                .FirstOrDefaultAsync(r => r.UserId == userId && r.PokemonId == clickedPokemonId, cancellationToken);
 
             if (existing == null)
             {
@@ -151,7 +151,7 @@ public class PokemonService : IPokemonService
                 };
 
                 _dbContext.PokemonRanks.Add(created);
-                await _dbContext.SaveChangesAsync();
+                await _dbContext.SaveChangesAsync(cancellationToken);
 
                 return new UpdateRankResponse
                 {
@@ -165,7 +165,7 @@ public class PokemonService : IPokemonService
             {
                 existing.Score = targetScore;
                 existing.UpdatedAt = DateTime.UtcNow; // Mettre à jour UpdatedAt manuellement
-                await _dbContext.SaveChangesAsync();
+                await _dbContext.SaveChangesAsync(cancellationToken);
 
                 return new UpdateRankResponse
                 {

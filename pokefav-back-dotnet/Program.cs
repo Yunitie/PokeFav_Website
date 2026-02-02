@@ -83,6 +83,7 @@ builder.Services.AddControllers()
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IPokemonService, PokemonService>();
+builder.Services.AddScoped<IShareService, ShareService>();
 
 // Configuration JWT Authentication
 var jwtSecret = builder.Configuration["Jwt:Secret"];

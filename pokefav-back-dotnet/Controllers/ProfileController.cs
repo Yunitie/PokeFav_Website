@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PokeFav.Api.Data;
+using PokeFav.Api.Utils;
 
 namespace PokeFav.Api.Controllers;
 
@@ -28,47 +29,25 @@ public class ProfileController : ControllerBase
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetProfile()
+    public async Task<IActionResult> GetProfile(CancellationToken cancellationToken)
     {
-        // Récupérer le refresh token depuis les cookies (même logique que Node)
-        if (!Request.Cookies.TryGetValue("refreshToken", out var refreshToken) || string.IsNullOrWhiteSpace(refreshToken))
+        // Récupérer le userId depuis la requête (authentification centralisée)
+        var userId = TokenHelper.GetUserIdFromRequest(Request, _configuration);
+        if (userId == null)
         {
+            // Vérifier si c'est un problème de configuration serveur
+            var jwtRefreshSecret = _configuration["Jwt:RefreshSecret"];
+            if (string.IsNullOrWhiteSpace(jwtRefreshSecret))
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Server configuration error" });
+            }
             return Unauthorized(new { error = "Not authenticated" });
-        }
-
-        var jwtRefreshSecret = _configuration["Jwt:RefreshSecret"];
-        if (string.IsNullOrWhiteSpace(jwtRefreshSecret))
-        {
-            // Mauvaise configuration serveur : on renvoie une erreur générique
-            return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Server configuration error" });
         }
 
         try
         {
-            // Vérification du refresh token
-            var tokenHandler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
-            var key = System.Text.Encoding.UTF8.GetBytes(jwtRefreshSecret);
-
-            tokenHandler.ValidateToken(refreshToken, new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(key),
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero
-            }, out var validatedToken);
-
-            var jwtToken = (System.IdentityModel.Tokens.Jwt.JwtSecurityToken)validatedToken;
-            var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier);
-
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
-            {
-                return Unauthorized(new { error = "Invalid token" });
-            }
-
             // Récupérer l'utilisateur depuis la base
-            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId.Value, cancellationToken);
             if (user == null)
             {
                 return NotFound(new { error = "User not found" });
@@ -85,11 +64,6 @@ public class ProfileController : ControllerBase
                 isVerified = user.IsVerified
             });
         }
-        catch (Microsoft.IdentityModel.Tokens.SecurityTokenException)
-        {
-            // Token invalide ou expiré
-            return Unauthorized(new { error = "Invalid token" });
-        }
         catch (Exception)
         {
             // Par sécurité, on ne renvoie pas le détail de l'erreur
@@ -105,53 +79,33 @@ public class ProfileController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(object), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> DeleteProfile()
+    public async Task<IActionResult> DeleteProfile(CancellationToken cancellationToken)
     {
-        const string cookieName = "refreshToken";
-
-        if (!Request.Cookies.TryGetValue(cookieName, out var refreshToken) || string.IsNullOrWhiteSpace(refreshToken))
+        // Récupérer le userId depuis la requête (authentification centralisée)
+        var userId = TokenHelper.GetUserIdFromRequest(Request, _configuration);
+        if (userId == null)
         {
+            // Vérifier si c'est un problème de configuration serveur
+            var jwtRefreshSecret = _configuration["Jwt:RefreshSecret"];
+            if (string.IsNullOrWhiteSpace(jwtRefreshSecret))
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Server configuration error" });
+            }
             return Unauthorized(new { error = "Not authenticated" });
-        }
-
-        var jwtRefreshSecret = _configuration["Jwt:RefreshSecret"];
-        if (string.IsNullOrWhiteSpace(jwtRefreshSecret))
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new { error = "Server configuration error" });
         }
 
         try
         {
-            var tokenHandler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
-            var key = System.Text.Encoding.UTF8.GetBytes(jwtRefreshSecret);
-
-            tokenHandler.ValidateToken(refreshToken, new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(key),
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero
-            }, out var validatedToken);
-
-            var jwtToken = (System.IdentityModel.Tokens.Jwt.JwtSecurityToken)validatedToken;
-            var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier);
-
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
-            {
-                return Unauthorized(new { error = "Invalid token" });
-            }
-
             // Supprimer l'utilisateur
-            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId.Value, cancellationToken);
             if (user != null)
             {
                 _dbContext.Users.Remove(user);
-                await _dbContext.SaveChangesAsync();
+                await _dbContext.SaveChangesAsync(cancellationToken);
             }
 
             // Supprimer le cookie côté client
+            const string cookieName = "refreshToken";
             var requireHttps = _configuration.GetValue<bool>("Jwt:RequireHttps", false)
                                || !HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment();
 
@@ -164,10 +118,6 @@ public class ProfileController : ControllerBase
             });
 
             return NoContent();
-        }
-        catch (Microsoft.IdentityModel.Tokens.SecurityTokenException)
-        {
-            return Unauthorized(new { error = "Invalid token" });
         }
         catch (Exception)
         {
