@@ -1,3 +1,6 @@
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -17,34 +20,84 @@ public interface IEmailService
 }
 
 /// <summary>
-/// Implémentation simple de IEmailService.
-/// Pour le moment, cette implémentation se contente de logger l'email.
-/// Tu pourras plus tard la remplacer par une implémentation SMTP réelle
-/// (par exemple via MailKit, SendGrid, etc.).
+/// Implémentation de IEmailService utilisant l'API Brevo (Sendinblue).
+/// En développement, si la configuration Brevo est absente, on se contente de logger.
 /// </summary>
 public class EmailService : IEmailService
 {
+    private readonly HttpClient _httpClient;
     private readonly ILogger<EmailService> _logger;
     private readonly IConfiguration _configuration;
 
-    public EmailService(ILogger<EmailService> logger, IConfiguration configuration)
+    public EmailService(HttpClient httpClient, ILogger<EmailService> logger, IConfiguration configuration)
     {
+        _httpClient = httpClient;
         _logger = logger;
         _configuration = configuration;
     }
 
-    public Task SendPasswordResetEmailAsync(string to, string resetLink)
+    public async Task SendPasswordResetEmailAsync(string to, string resetLink)
     {
-        // TODO: Implémenter un vrai envoi d'email (SMTP, provider externe, etc.).
-        // Pour l'instant, on logge seulement le contenu pour le développement.
+        var apiKey = _configuration["Brevo:ApiKey"];
+        var senderEmail = _configuration["Brevo:SenderEmail"];
+        var senderName = _configuration["Brevo:SenderName"] ?? "PokeFav";
 
-        _logger.LogInformation(
-            "Password reset email would be sent to {Email}. Reset link: {ResetLink}",
-            to,
-            resetLink
+        // Si la config Brevo n'est pas définie, on reste en mode "log only" (utile en dev)
+        if (string.IsNullOrWhiteSpace(apiKey) || string.IsNullOrWhiteSpace(senderEmail))
+        {
+            _logger.LogInformation(
+                "Password reset email (Brevo NOT configured) would be sent to {Email}. Reset link: {ResetLink}",
+                to,
+                resetLink
+            );
+            return;
+        }
+
+        var payload = new
+        {
+            sender = new
+            {
+                email = senderEmail,
+                name = senderName
+            },
+            to = new[]
+            {
+                new { email = to }
+            },
+            subject = "Réinitialisation de votre mot de passe PokeFav",
+            htmlContent = $"<p>Pour réinitialiser votre mot de passe, cliquez sur ce lien :</p><p><a href=\"{resetLink}\">{resetLink}</a></p>",
+            textContent = $"Pour réinitialiser votre mot de passe, ouvrez ce lien : {resetLink}"
+        };
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.brevo.com/v3/smtp/email");
+        request.Headers.Add("api-key", apiKey);
+        request.Content = new StringContent(
+            JsonSerializer.Serialize(payload),
+            Encoding.UTF8,
+            "application/json"
         );
 
-        return Task.CompletedTask;
+        try
+        {
+            var response = await _httpClient.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                _logger.LogError(
+                    "Brevo email send failed with status {StatusCode}. Response: {Response}",
+                    (int)response.StatusCode,
+                    body
+                );
+            }
+            else
+            {
+                _logger.LogInformation("Password reset email sent via Brevo to {Email}", to);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while sending password reset email via Brevo to {Email}", to);
+        }
     }
 }
 

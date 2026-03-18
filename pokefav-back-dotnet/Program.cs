@@ -1,5 +1,7 @@
+using System.Net;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -23,6 +25,23 @@ builder.Configuration.AddJsonFile(
 // ---------------------------------------------------------------------------
 // Services
 // ---------------------------------------------------------------------------
+
+// ForwardedHeaders (équivalent "trust proxy" en Node) : pour que le rate limiting
+// et les logs utilisent la vraie IP client en production derrière nginx/reverse proxy.
+// En dev : localhost par défaut. En prod : définir TrustedProxy:Ips dans la config.
+var trustedProxyIps = builder.Configuration["TrustedProxy:Ips"]?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+    ?? ["127.0.0.1", "::1"];
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+    foreach (var ip in trustedProxyIps)
+    {
+        if (IPAddress.TryParse(ip, out var addr))
+            options.KnownProxies.Add(addr);
+    }
+});
 
 // CORS : autorise ton front (dev par défaut http://localhost:3000)
 var frontendUrl = builder.Configuration["Frontend:Url"] ?? "http://localhost:3000";
@@ -85,7 +104,7 @@ builder.Services.AddControllers()
 
 // Services : enregistrer AuthService, EmailService et PokemonService dans le conteneur d'injection de dépendances
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddHttpClient<IEmailService, EmailService>();
 builder.Services.AddScoped<IPokemonService, PokemonService>();
 builder.Services.AddScoped<IShareService, ShareService>();
 
@@ -194,6 +213,9 @@ var app = builder.Build();
 // ---------------------------------------------------------------------------
 // Middleware pipeline
 // ---------------------------------------------------------------------------
+
+// ForwardedHeaders doit être en premier pour que RemoteIpAddress soit correct
+app.UseForwardedHeaders();
 
 if (app.Environment.IsDevelopment())
 {
