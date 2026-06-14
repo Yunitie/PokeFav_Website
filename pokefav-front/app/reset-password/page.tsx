@@ -89,7 +89,7 @@ export default function ResetPasswordPage() {
         // Redirection vers la page de connexion après 3 secondes
         setTimeout(() => {
           router.push(
-            "/login?message=Your password has been reset successfully. You can now log in."
+            "/login?message=Your password has been reset successfully. You can now log in.",
           );
         }, 3000);
       } else {
@@ -100,7 +100,7 @@ export default function ResetPasswordPage() {
       // Gestion des erreurs de réseau ou autres erreurs
       logger.error("Error during API call:", error);
       setError(
-        "Unable to contact the server. Check your connection and try again."
+        "Unable to contact the server. Check your connection and try again.",
       );
     } finally {
       // Désactivation de l'état de chargement dans tous les cas
@@ -148,14 +148,26 @@ export default function ResetPasswordPage() {
             <div className="text-center mb-8">
               {/* Logo centré */}
               <div className="flex justify-center mb-4">
-                <Logo size="large" />
+                <Logo
+                  size="large"
+                  color="black"
+                  className="dark:fill-[#F3EDF5]"
+                />
               </div>
               {/* Titre principal de la page */}
-              <Typography variant="h2" component="h1" className="mb-2">
+              <Typography
+                variant="h2"
+                component="h1"
+                className="mb-2 text-black dark:text-white"
+              >
                 New password
               </Typography>
               {/* Sous-titre descriptif */}
-              <Typography variant="body-sm" theme="gray">
+              <Typography
+                variant="body-sm"
+                theme="gray"
+                className="text-black dark:text-white"
+              >
                 Set your new password
               </Typography>
             </div>

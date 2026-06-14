@@ -61,7 +61,11 @@ const Navigation = ({ textColor = "white" }: Props) => {
     <>
       {loading ? (
         <div className="flex items-center gap-2">
-          <Typography variant="caption3" component="span">
+          <Typography
+            variant="caption3"
+            component="span"
+            className="text-black dark:text-white"
+          >
             Loading...
           </Typography>
         </div>
